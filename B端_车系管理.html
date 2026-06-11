@@ -127,6 +127,9 @@ select.filter-control {
 select.form-control { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; cursor: pointer; }
 .form-hint { margin-top: 5px; font-size: 12px; color: #aaa; line-height: 1.5; }
 .apollo-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #888; background: #f5f5f5; border-radius: 3px; padding: 1px 6px; margin-top: 5px; }
+.brand-radio-group { display: flex; gap: 24px; align-items: center; padding-top: 6px; }
+.radio-opt { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; color: #333; user-select: none; }
+.radio-opt input[type=radio] { accent-color: #0B7B6B; width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
 
 /* TOAST */
 .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); color: #fff; padding: 8px 20px; border-radius: 4px; font-size: 13px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
@@ -359,7 +362,19 @@ select.form-control { appearance: none; -webkit-appearance: none; background-ima
       <div class="form-row">
         <div class="form-label"><span class="req">*</span>品牌</div>
         <div class="form-content">
-          <input class="form-control" id="f-brand-modal" type="text" placeholder="请输入品牌名称">
+          <div class="brand-radio-group">
+            <label class="radio-opt">
+              <input type="radio" name="brand-type" id="radio-lixiang" value="lixiang" checked onchange="onBrandTypeChange()">
+              <span>理想</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="brand-type" id="radio-third" value="third" onchange="onBrandTypeChange()">
+              <span>三方</span>
+            </label>
+          </div>
+          <div id="brand-custom-wrap" style="display:none;margin-top:8px">
+            <input class="form-control" id="f-brand-custom" type="text" placeholder="请输入品牌名称">
+          </div>
         </div>
       </div>
 
@@ -374,31 +389,38 @@ select.form-control { appearance: none; -webkit-appearance: none; background-ima
       <div class="form-row">
         <div class="form-label">
           <span class="req">*</span>车系编码
-          <span class="hint">Apollo 枚举</span>
+          <span class="hint" id="code-hint-apollo">Apollo 枚举</span>
         </div>
         <div class="form-content">
-          <div class="search-select-wrap">
-            <input class="search-select-input" id="f-code-modal" placeholder="请搜索或选择车系编码" autocomplete="off"
-              oninput="filterSS('f-code-modal','f-code-modal-dd');onCodeChange()"
-              onfocus="openSS('f-code-modal-dd')" onkeydown="ssDn(event,'f-code-modal-dd','f-code-modal')">
-            <svg class="search-select-arrow" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 5 5-5z" fill="#bbb"/></svg>
-            <div class="search-select-dropdown" id="f-code-modal-dd">
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','x11');onCodeChange()">x11</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L9_2023');onCodeChange()">LSSG_L9_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7_2023');onCodeChange()">LSSG_L7_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L6_2024');onCodeChange()">LSSG_L6_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_MEGA_2024');onCodeChange()">LSSG_MEGA_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L8_2023');onCodeChange()">LSSG_L8_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7PRO_2024');onCodeChange()">LSSG_L7PRO_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_MY_2023');onCodeChange()">TSLA_MY_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_M3_2024');onCodeChange()">TSLA_M3_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','BYD_HAN_2024');onCodeChange()">BYD_HAN_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','XIAOMI_SU7_2024');onCodeChange()">XIAOMI_SU7_2024</div>
+          <!-- 理想模式：下拉搜索 -->
+          <div id="code-lixiang-wrap">
+            <div class="search-select-wrap">
+              <input class="search-select-input" id="f-code-modal" placeholder="请搜索或选择车系编码" autocomplete="off"
+                oninput="filterSS('f-code-modal','f-code-modal-dd');onCodeChange()"
+                onfocus="openSS('f-code-modal-dd')" onkeydown="ssDn(event,'f-code-modal-dd','f-code-modal')">
+              <svg class="search-select-arrow" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 5 5-5z" fill="#bbb"/></svg>
+              <div class="search-select-dropdown" id="f-code-modal-dd">
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','x11');onCodeChange()">x11</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L9_2023');onCodeChange()">LSSG_L9_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7_2023');onCodeChange()">LSSG_L7_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L6_2024');onCodeChange()">LSSG_L6_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_MEGA_2024');onCodeChange()">LSSG_MEGA_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L8_2023');onCodeChange()">LSSG_L8_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7PRO_2024');onCodeChange()">LSSG_L7PRO_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_MY_2023');onCodeChange()">TSLA_MY_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_M3_2024');onCodeChange()">TSLA_M3_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','BYD_HAN_2024');onCodeChange()">BYD_HAN_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','XIAOMI_SU7_2024');onCodeChange()">XIAOMI_SU7_2024</div>
+              </div>
+            </div>
+            <div class="apollo-badge">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.2"/><path d="M5 3v2.5l1.5 1.5" stroke="#888" stroke-width="1.1" stroke-linecap="round"/></svg>
+              枚举值由 Apollo 配置维护
             </div>
           </div>
-          <div class="apollo-badge">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.2"/><path d="M5 3v2.5l1.5 1.5" stroke="#888" stroke-width="1.1" stroke-linecap="round"/></svg>
-            枚举值由 Apollo 配置维护
+          <!-- 三方模式：手动输入 -->
+          <div id="code-third-wrap" style="display:none">
+            <input class="form-control" id="f-code-manual" type="text" placeholder="请输入车系编码">
           </div>
         </div>
       </div>
@@ -406,7 +428,7 @@ select.form-control { appearance: none; -webkit-appearance: none; background-ima
       <div class="form-row">
         <div class="form-label">
           <span class="req">*</span>车系描述
-          <span class="hint">业务概念 · 随编码联动</span>
+          <span class="hint" id="desc-hint">业务概念 · 随编码联动</span>
         </div>
         <div class="form-content">
           <input class="form-control" id="f-desc-modal" type="text" readonly
@@ -495,6 +517,34 @@ const CODE_DESC_MAP = {
 function onCodeChange() {
   const code = document.getElementById('f-code-modal').value;
   document.getElementById('f-desc-modal').value = CODE_DESC_MAP[code] || '';
+}
+
+function onBrandTypeChange() {
+  const isLixiang = document.getElementById('radio-lixiang').checked;
+  document.getElementById('brand-custom-wrap').style.display = isLixiang ? 'none' : '';
+  document.getElementById('code-lixiang-wrap').style.display = isLixiang ? '' : 'none';
+  document.getElementById('code-third-wrap').style.display  = isLixiang ? 'none' : '';
+  document.getElementById('code-hint-apollo').style.display = isLixiang ? '' : 'none';
+  const descField = document.getElementById('f-desc-modal');
+  const descHint  = document.getElementById('desc-hint');
+  if (isLixiang) {
+    descField.readOnly = true;
+    descField.style.background = '#fafafa';
+    descField.style.color = '#555';
+    descField.style.cursor = 'not-allowed';
+    descField.placeholder = '选择车系编码后自动填入';
+    descHint.textContent = '业务概念 · 随编码联动';
+    onCodeChange();
+  } else {
+    descField.readOnly = false;
+    descField.style.background = '';
+    descField.style.color = '';
+    descField.style.cursor = '';
+    descField.placeholder = '请输入车系描述';
+    descHint.textContent = '业务概念';
+    document.getElementById('f-code-modal').value = '';
+    descField.value = '';
+  }
 }
 
 // ===== 可搜索下拉通用函数 =====
@@ -651,10 +701,19 @@ function openEdit(id) {
   if (!r) return;
   editingId = id;
   document.getElementById('modal-title').textContent = '编辑车系';
-  document.getElementById('f-brand-modal').value = r.brand;
-  document.getElementById('f-vin-modal').value   = r.vin;
-  document.getElementById('f-code-modal').value  = r.code;
-  document.getElementById('f-desc-modal').value  = r.desc;
+  const isLixiang = r.brand === '理想';
+  document.getElementById('radio-lixiang').checked = isLixiang;
+  document.getElementById('radio-third').checked   = !isLixiang;
+  document.getElementById('f-brand-custom').value  = isLixiang ? '' : r.brand;
+  onBrandTypeChange();
+  document.getElementById('f-vin-modal').value  = r.vin;
+  if (isLixiang) {
+    document.getElementById('f-code-modal').value = r.code;
+    document.getElementById('f-desc-modal').value = r.desc;
+  } else {
+    document.getElementById('f-code-manual').value = r.code;
+    document.getElementById('f-desc-modal').value  = r.desc;
+  }
   setTagValues(r.tags);
   document.getElementById('form-modal').classList.remove('hidden');
 }
@@ -662,10 +721,14 @@ function openEdit(id) {
 function closeModal() { document.getElementById('form-modal').classList.add('hidden'); }
 
 function clearForm() {
-  document.getElementById('f-brand-modal').value = '';
-  document.getElementById('f-vin-modal').value   = '';
-  document.getElementById('f-code-modal').value  = '';
-  document.getElementById('f-desc-modal').value  = '';
+  document.getElementById('radio-lixiang').checked = true;
+  document.getElementById('radio-third').checked   = false;
+  document.getElementById('f-brand-custom').value  = '';
+  document.getElementById('f-vin-modal').value      = '';
+  document.getElementById('f-code-modal').value     = '';
+  document.getElementById('f-code-manual').value    = '';
+  document.getElementById('f-desc-modal').value     = '';
+  onBrandTypeChange();
   setTagValues([]);
 }
 
@@ -724,15 +787,18 @@ document.addEventListener('click', (e) => {
 });
 
 function saveRecord() {
-  const brand = document.getElementById('f-brand-modal').value;
+  const isLixiang = document.getElementById('radio-lixiang').checked;
+  const brand = isLixiang ? '理想' : document.getElementById('f-brand-custom').value.trim();
   const vin   = document.getElementById('f-vin-modal').value.trim().toUpperCase();
-  const code  = document.getElementById('f-code-modal').value;
-  const desc  = document.getElementById('f-desc-modal').value;
+  const code  = isLixiang
+    ? document.getElementById('f-code-modal').value.trim()
+    : document.getElementById('f-code-manual').value.trim();
+  const desc  = document.getElementById('f-desc-modal').value.trim();
   const tags = getTagValues();
 
-  if (!brand) { showToast('请输入品牌'); return; }
+  if (!brand) { showToast('请输入品牌名称'); return; }
   if (!vin || vin.length !== 8) { showToast('VIN 前 8 位须填写 8 个字符'); return; }
-  if (!code)  { showToast('请选择车系编码'); return; }
+  if (!code)  { showToast(isLixiang ? '请选择车系编码' : '请输入车系编码'); return; }
   if (!desc)  { showToast('车系描述不能为空'); return; }
 
   if (editingId) {
