@@ -76,11 +76,11 @@ select.filter-control{appearance:none;-webkit-appearance:none;background-image:u
 .data-table tbody tr{border-bottom:1px solid #f5f5f5;transition:background .12s}
 .data-table tbody tr:hover{background:#f7fffd}
 .data-table tbody td{padding:10px 10px;color:#333;vertical-align:middle;white-space:nowrap;border-right:1px solid #f5f5f5}
-.data-table tbody td:last-child{border-right:none;position:sticky;right:0;background:#fff;z-index:1}
+.data-table tbody td:last-child{border-right:none;position:sticky;right:0;background:#fff;box-shadow:-2px 0 5px rgba(0,0,0,.06);z-index:1}
 .data-table tbody tr:hover td:last-child{background:#f7fffd}
 
-.col-check{position:sticky;left:0;z-index:2;background:inherit;width:40px;min-width:40px}
-.col-id{position:sticky;left:40px;z-index:2;background:inherit;min-width:160px}
+.col-check{position:sticky;left:0;z-index:2;background:#fff;width:40px;min-width:40px}
+.col-id{position:sticky;left:40px;z-index:2;background:#fff;min-width:160px;box-shadow:2px 0 5px rgba(0,0,0,.06)}
 .data-table thead th.col-check,
 .data-table thead th.col-id{background:#fafafa;z-index:4}
 
@@ -309,7 +309,7 @@ function buildCols(dateLabel) {
   return [
     { key:'id',              label:'对账单号',       w:160, sticky:'left:40px', mono:true },
     { key:'platform',        label:'反向互联平台商',  w:190 },
-    { key:'date',            label:dateLabel,         w: dateLabel==='起止日期' ? 180 : 90 },
+    { key:'date',            label:dateLabel,         w: dateLabel==='起止日期' ? 180 : 90, highlight: dateLabel==='起止日期' },
     { key:'chargeOrders',    label:'充电服务单数',    w:100, right:true },
     { key:'parkOrders',      label:'占位服务单数',    w:100, right:true },
     { key:'kwh',             label:'总电量',          w:120, right:true },
@@ -348,7 +348,8 @@ function buildTable(theadId, tbodyId, cols, rows) {
     cols.map(c => {
       const stickyStyle = c.sticky ? `position:sticky;${c.sticky};z-index:3;background:#fafafa;` : '';
       const opStyle = c.op ? `position:sticky;right:0;z-index:3;background:#fafafa;` : '';
-      return `<th style="min-width:${c.w}px;${stickyStyle}${opStyle}">${c.label}</th>`;
+      const hlStyle = c.highlight ? `background:#fff7e6;color:#d48806;font-weight:500;` : '';
+      return `<th style="min-width:${c.w}px;${stickyStyle}${opStyle}${hlStyle}">${c.label}</th>`;
     }).join('');
 
   // tbody
@@ -357,12 +358,13 @@ function buildTable(theadId, tbodyId, cols, rows) {
     const cells = cols.map(c => {
       let val = r[c.key];
       let style = '';
-      if (c.right)  style += 'text-align:right;';
-      if (c.green)  style += 'color:#0B7B6B;font-weight:500;';
-      if (c.muted)  style += 'color:#999;font-size:12px;';
-      if (c.mono)   style += 'font-family:monospace;font-size:12px;';
-      if (c.sticky) style += `position:sticky;${c.sticky};z-index:1;background:inherit;`;
-      if (c.op)     style += 'position:sticky;right:0;z-index:1;background:inherit;';
+      if (c.right)     style += 'text-align:right;';
+      if (c.green)     style += 'color:#0B7B6B;font-weight:500;';
+      if (c.muted)     style += 'color:#999;font-size:12px;';
+      if (c.mono)      style += 'font-family:monospace;font-size:12px;';
+      if (c.highlight) style += 'background:#fff7e6;color:#d48806;font-weight:500;';
+      if (c.sticky)    style += `position:sticky;${c.sticky};z-index:1;background:#fff;`;
+      if (c.op)        style += 'position:sticky;right:0;z-index:1;background:#fff;';
       let cell = val;
       if (c.badge === 'pay')     cell = payBadge(val);
       if (c.badge === 'invoice') cell = invoiceBadge(val);
@@ -371,7 +373,7 @@ function buildTable(theadId, tbodyId, cols, rows) {
       if (c.right && !c.badge && !c.op) cell = Number(val) ? Number(val).toLocaleString() : val;
       return `<td style="${style}">${cell}</td>`;
     }).join('');
-    return `<tr><td class="col-check" style="position:sticky;left:0;z-index:1;background:inherit"><div class="row-check" onclick="this.classList.toggle('checked')"></div></td>${cells}</tr>`;
+    return `<tr><td class="col-check" style="position:sticky;left:0;z-index:1;background:#fff"><div class="row-check" onclick="this.classList.toggle('checked')"></div></td>${cells}</tr>`;
   }).join('');
 }
 
