@@ -1175,11 +1175,6 @@ savedKwh = newVal;
     'third-single':  '非车主单月购买 SKU'
   };
 
-  function lockSkuView(key) {
-    const btn = document.querySelector('#sku-' + key + '-view button');
-    if (btn) btn.remove();
-  }
-
   function startSkuEdit(key) {
     const input = document.getElementById('sku-' + key + '-input');
     input.value = skuIds[key];
@@ -1203,12 +1198,8 @@ savedKwh = newVal;
     if (newVal !== oldVal) {
 }
     cancelSkuEdit(key);
-    lockSkuView(key); // 首次保存后锁定，移除编辑按钮
-    showToast(skuLabels[key] + ' 已保存，不可再次修改 ✓');
+    showToast(skuLabels[key] + ' 已保存 ✓');
   }
-
-  // 页面加载时，对已有值的字段直接锁定
-  Object.keys(skuIds).forEach(key => { if (skuIds[key]) lockSkuView(key); });
 
   function startEdit(key) {
     const input = document.getElementById(key + '-input');
@@ -1222,11 +1213,6 @@ savedKwh = newVal;
   function cancelEdit(key) {
     document.getElementById(key + '-edit').classList.add('hidden');
     document.getElementById(key + '-view').classList.remove('hidden');
-  }
-
-  function lockWeaponView(key) {
-    const btn = document.querySelector('#' + key + '-view button');
-    if (btn) btn.remove();
   }
 
   function saveEdit(key) {
@@ -1255,12 +1241,8 @@ savedKwh = newVal;
 }
 
     cancelEdit(key);
-    lockWeaponView(key);
-    showToast(fieldLabels[key] + ' 已保存，不可再次修改 ✓');
+    showToast(fieldLabels[key] + ' 已保存 ✓');
   }
-
-  // 页面加载时，对已有值的武器 ID 直接锁定
-  Object.keys(weaponIds).forEach(key => { if (weaponIds[key]) lockWeaponView(key); });
 
 
   // ===== 图片上传规格 =====
