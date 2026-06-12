@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>月卡明细 — 充电运营平台</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #F0F2F0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== APP SHELL ===== */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 188px;
+      min-width: 188px;
+      background: #1A3530;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .sidebar::-webkit-scrollbar { width: 0; }
+
+    .sidebar-logo {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: #0B7B6B;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .menu-section { padding: 6px 0; }
+    .menu-group-label {
+      padding: 10px 16px 4px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+    .menu-item {
+      display: flex; align-items: center;
+      padding: 9px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      transition: background 0.15s, color 0.15s;
+      gap: 8px;
+      user-select: none;
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .menu-item.active { background: #0B7B6B; color: #fff; }
+    .menu-item-text { flex: 1; }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 8px;
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    .avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #0B7B6B;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #fff;
+      flex-shrink: 0;
+    }
+    .avatar-name { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+    /* ===== MAIN ===== */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .topbar {
+      height: 46px;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      font-size: 15px; font-weight: 500; color: #222;
+      flex-shrink: 0;
+    }
+    .page-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px 32px;
+    }
+    .page-body::-webkit-scrollbar { width: 5px; }
+    .page-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    /* ===== BREADCRUMB ===== */
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 16px; font-size: 13px;
+    }
+    .bc-path { color: #999; cursor: pointer; }
+    .bc-path:hover { color: #0B7B6B; }
+    .bc-sep { color: #ddd; }
+    .bc-current { color: #333; }
+
+    /* ===== CARD ===== */
+    .card {
+      background: #fff;
+      border-radius: 4px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+
+    /* ===== 检索区 ===== */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 16px;
+      margin-bottom: 16px;
+    }
+    .filter-field { display: flex; flex-direction: column; gap: 5px; }
+    .filter-label { font-size: 12px; color: #888; }
+    .filter-control {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      padding: 0 10px;
+      font-size: 13px; color: #333;
+      outline: none;
+      background: #fff;
+      width: 100%;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .filter-control:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+    .filter-control::placeholder { color: #bbb; }
+    select.filter-control {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+      cursor: pointer;
+    }
+    .date-range {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .date-range .filter-control { flex: 1; }
+    .date-sep { font-size: 12px; color: #bbb; white-space: nowrap; }
+
+    .filter-actions {
+      display: flex; justify-content: flex-end; gap: 8px;
+      padding-top: 4px;
+      border-top: 1px solid #f5f5f5;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      height: 32px;
+      padding: 0 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.15s;
+      border: none;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .btn-primary { background: #0B7B6B; color: #fff; border: 1px solid #0B7B6B; }
+    .btn-primary:hover { background: #096B5D; }
+    .btn-default { background: #fff; color: #555; border: 1px solid #d9d9d9; }
+    .btn-default:hover { border-color: #0B7B6B; color: #0B7B6B; }
+    .btn-link {
+      background: none; border: none; padding: 0;
+      color: #0B7B6B; font-size: 13px; cursor: pointer;
+      font-family: inherit;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .btn-link:hover { color: #096B5D; text-decoration: underline; }
+
+    /* ===== 结果卡片标题栏 ===== */
+    .result-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .result-title {
+      font-size: 14px; font-weight: 600; color: #222;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .result-title-dot {
+      width: 3px; height: 14px;
+      background: #0B7B6B;
+      border-radius: 2px;
+    }
+    .result-count {
+      font-size: 13px; color: #888; font-weight: 400;
+    }
+    .result-count span { color: #0B7B6B; font-weight: 500; }
+
+    /* ===== 数据表格 ===== */
+    .data-table-wrap {
+      overflow-x: auto;
+    }
+    .data-table-wrap::-webkit-scrollbar { height: 5px; }
+    .data-table-wrap::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 1060px;
+    }
+    .data-table thead tr {
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafafa;
+    }
+    .data-table thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 500;
+      color: #888;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    .data-table tbody tr {
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.12s;
+    }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table tbody tr:hover { background: #f7fffd; }
+    .data-table tbody td {
+      padding: 12px 12px;
+      color: #333;
+      vertical-align: middle;
+    }
+
+    .td-user-phone { font-weight: 500; color: #222; }
+    .td-user-id { font-size: 12px; color: #aaa; margin-top: 2px; }
+    .td-card-id { font-size: 13px; color: #555; font-variant-numeric: tabular-nums; }
+
+    /* 状态标签 */
+    .status-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-active   { background: #EAF7F0; color: #0B7B6B; }
+    .status-active   .status-dot { background: #0B7B6B; }
+    .status-expired  { background: #F5F5F5; color: #999; }
+    .status-expired  .status-dot { background: #bbb; }
+    .status-refunded { background: #FFF4F4; color: #D93025; }
+    .status-refunded .status-dot { background: #D93025; }
+    .status-pending  { background: #FFF8ED; color: #E8860A; }
+    .status-pending  .status-dot { background: #E8860A; }
+
+    /* 开通方式标签 */
+    .method-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+    .method-auto   { background: #EAF3FF; color: #1876D2; }
+    .method-single { background: #F5F5F5; color: #666; }
+
+    /* 金额列 */
+    .td-amount {
+      font-variant-numeric: tabular-nums;
+      color: #333;
+    }
+    .td-amount-zero { color: #ccc; }
+
+    /* 空状态 */
+    .table-empty {
+      text-align: center;
+      padding: 48px 0;
+      color: #bbb;
+      font-size: 13px;
+    }
+    .table-empty-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      opacity: 0.4;
+    }
+
+    /* ===== 分页 ===== */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .page-info { font-size: 13px; color: #888; }
+    .page-info span { color: #333; font-weight: 500; }
+    .page-controls { display: flex; align-items: center; gap: 6px; }
+    .page-btn {
+      height: 30px; min-width: 30px;
+      padding: 0 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      font-size: 13px; color: #555;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.12s;
+      font-family: inherit;
+    }
+    .page-btn:hover:not(:disabled) { border-color: #0B7B6B; color: #0B7B6B; }
+    .page-btn.active { background: #0B7B6B; border-color: #0B7B6B; color: #fff; cursor: default; }
+    .page-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .page-size-select {
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      padding: 0 24px 0 8px;
+      font-size: 13px; color: #555;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+      appearance: none; -webkit-appearance: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 8px center;
+    }
+
+    /* ===== 抽屉 ===== */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.30);
+      z-index: 900;
+      display: none;
+    }
+    .drawer-overlay.open { display: block; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 600px;
+      background: #fff;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.10);
+      z-index: 901;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.24s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .drawer-title { font-size: 15px; font-weight: 600; color: #222; }
+    .drawer-meta { font-size: 12px; color: #999; margin-top: 4px; }
+    .drawer-close {
+      width: 28px; height: 28px; margin-top: 2px;
+      border: none; background: none;
+      cursor: pointer; color: #aaa;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      transition: background 0.12s, color 0.12s;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+    .drawer-close:hover { background: #f5f5f5; color: #333; }
+
+    .drawer-body {
+      flex: 1; overflow-y: auto; padding: 20px 24px;
+    }
+    .drawer-body::-webkit-scrollbar { width: 5px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    /* 抽屉内统计 */
+    .drawer-stats {
+      display: flex; gap: 24px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: #F7FBF9;
+      border-radius: 4px;
+    }
+    .drawer-stat-item { display: flex; flex-direction: column; gap: 3px; }
+    .drawer-stat-label { font-size: 12px; color: #999; }
+    .drawer-stat-value { font-size: 15px; font-weight: 600; color: #0B7B6B; font-variant-numeric: tabular-nums; }
+
+    /* 抽屉内表格 */
+    .drawer-table-wrap { overflow-x: auto; }
+    .drawer-table {
+      width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px;
+    }
+    .drawer-table thead tr { background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+    .drawer-table thead th { padding: 9px 12px; text-align: left; font-weight: 500; color: #888; font-size: 12px; white-space: nowrap; }
+    .drawer-table tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.12s; }
+    .drawer-table tbody tr:last-child { border-bottom: none; }
+    .drawer-table tbody tr:hover { background: #f7fffd; }
+    .drawer-table tbody td { padding: 11px 12px; color: #333; vertical-align: middle; }
+    .drawer-empty { text-align: center; padding: 40px 0; color: #bbb; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="white" stroke-width="1.5" fill="none"/>
+          <path d="M8 5V11M5.5 6.5L8 5L10.5 6.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      充电运营平台
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-group-label">基础配置</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">定价管理</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">电价管理</span>
+      </div>
+
+      <div class="menu-group-label">月卡管理</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">基础信息配置</span>
+      </div>
+      <div class="menu-item active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">月卡明细</span>
+      </div>
+
+      <div class="menu-group-label">运营工具</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2L13 5.8L10 8.7L10.7 13L7 11L3.3 13L4 8.7L1 5.8L5.2 5.2L7 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">活动中心</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L6 4.5L9 7.5L11.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">数据看板</span>
+      </div>
+
+      <div class="menu-group-label">系统</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">账务管理</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar">范</div>
+      <span class="avatar-name">范文杰</span>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <div class="topbar">月卡管理 / 月卡明细</div>
+    <div class="page-body">
+
+      <div class="breadcrumb">
+        <span class="bc-path">月卡管理</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-current">月卡明细</span>
+      </div>
+
+      <!-- 检索区 -->
+      <div class="card">
+        <div class="filter-grid">
+          <div class="filter-field">
+            <div class="filter-label">用户 ID</div>
+            <input class="filter-control" type="text" placeholder="请输入用户 ID" id="f-user">
+          </div>
+          <div class="filter-field">
+            <div class="filter-label">开卡时间</div>
+            <div class="date-range">
+              <input class="filter-control" type="date" id="f-date-start" value="2025-04-01">
+              <span class="date-sep">至</span>
+              <input class="filter-control" type="date" id="f-date-end" value="2025-05-08">
+            </div>
+          </div>
+          <div class="filter-field">
+            <div class="filter-label">状态</div>
+            <select class="filter-control" id="f-status">
+              <option value="">全部状态</option>
+              <option value="active">生效中</option>
+              <option value="pending">待生效</option>
+              <option value="expired">已过期</option>
+              <option value="refunded">已退款</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <div class="filter-label">开通方式</div>
+            <select class="filter-control" id="f-method">
+              <option value="">全部方式</option>
+              <option value="auto">自动续费</option>
+              <option value="single">单次购买</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-default" onclick="resetFilter()">重置</button>
+          <button class="btn btn-primary" onclick="doSearch()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            查询
+          </button>
+        </div>
+      </div>
+
+      <!-- 结果列表 -->
+      <div class="card">
+        <div class="result-header">
+          <div class="result-title">
+            <div class="result-title-dot"></div>
+            月卡列表
+            <span class="result-count">共 <span id="total-count">128</span> 条</span>
+          </div>
+        </div>
+
+        <div class="data-table-wrap">
+          <table class="data-table" id="main-table">
+            <thead>
+              <tr>
+                <th>用户信息</th>
+                <th>月卡ID</th>
+                <th>状态</th>
+                <th>开卡时间</th>
+                <th>有效期至</th>
+                <th>开通方式</th>
+                <th>专属价优惠金额</th>
+                <th>优惠券优惠金额</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <div class="page-info">
+            第 <span id="page-start">1</span>–<span id="page-end">20</span> 条，共 <span id="page-total">128</span> 条
+          </div>
+          <div class="page-controls">
+            <select class="page-size-select" id="page-size" onchange="changePageSize()">
+              <option value="20">20 条/页</option>
+              <option value="50">50 条/页</option>
+              <option value="100">100 条/页</option>
+            </select>
+            <button class="page-btn" id="btn-prev" onclick="goPage(-1)">
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M6 1L1 5.5L6 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span id="page-nums"></span>
+            <button class="page-btn" id="btn-next" onclick="goPage(1)">
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M1 1l5 4.5L1 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 优惠订单抽屉 ===== -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="order-drawer">
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-title">优惠订单列表</div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+  </div>
+
+</div>
+
+<script>
+  /* ===== mock 数据 ===== */
+  const STATUS_MAP = {
+    active:   { label: '生效中', cls: 'status-active' },
+    expired:  { label: '已过期', cls: 'status-expired' },
+    refunded: { label: '已退款', cls: 'status-refunded' },
+    pending:  { label: '待生效', cls: 'status-pending' },
+  };
+  const METHOD_MAP = {
+    auto:   { label: '自动续费', cls: 'method-auto' },
+    single: { label: '单次购买', cls: 'method-single' },
+  };
+
+  function randomPhone() {
+    const prefixes = ['138','139','150','151','176','177','182','185','186','189'];
+    return prefixes[Math.floor(Math.random() * prefixes.length)] + String(Math.floor(Math.random() * 1e8)).padStart(8,'0');
+  }
+  function randomDate(start, end) {
+    const d = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    return d.toISOString().slice(0,10);
+  }
+  function addDays(dateStr, n) {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0,10);
+  }
+
+  const STATUSES = ['active','active','active','expired','pending','refunded'];
+  const METHODS  = ['auto','auto','single'];
+
+  const ALL_DATA = Array.from({ length: 128 }, (_, i) => {
+    const openDate = randomDate(new Date('2025-01-01'), new Date('2025-05-07'));
+    const status = STATUSES[i % STATUSES.length];
+    const method = METHODS[i % METHODS.length];
+    const exclusiveAmt = (Math.random() * 40 + 5).toFixed(2);
+    const couponAmt = Math.random() > 0.35 ? (Math.random() * 20 + 2).toFixed(2) : '0.00';
+    return {
+      id: `U${String(10000 + i).padStart(6,'0')}`,
+      cardId: `MC2025${String(i + 1).padStart(4,'0')}`,
+      status,
+      method,
+      openDate,
+      expireDate: addDays(openDate, 30),
+      exclusiveAmt,
+      couponAmt,
+    };
+  });
+
+  /* ===== 状态 ===== */
+  let currentPage = 1;
+  let pageSize = 20;
+  let filteredData = [...ALL_DATA];
+
+  /* ===== 渲染表格 ===== */
+  function renderTable() {
+    const tbody = document.getElementById('table-body');
+    const start = (currentPage - 1) * pageSize;
+    const end = Math.min(start + pageSize, filteredData.length);
+    const rows = filteredData.slice(start, end);
+
+    if (rows.length === 0) {
+      tbody.innerHTML = `
+        <tr><td colspan="9" class="table-empty">
+          <div class="table-empty-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <rect x="6" y="10" width="28" height="22" rx="3" stroke="#ccc" stroke-width="1.6"/>
+              <path d="M12 18h16M12 24h10" stroke="#ccc" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>暂无数据</div>
+        </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => {
+      const st = STATUS_MAP[r.status];
+      const mt = METHOD_MAP[r.method];
+      const couponTd = r.couponAmt === '0.00'
+        ? `<td class="td-amount td-amount-zero">—</td>`
+        : `<td class="td-amount">¥${r.couponAmt}</td>`;
+      return `
+        <tr>
+          <td class="td-user-id" style="font-size:13px;color:#333">${r.id}</td>
+          <td class="td-card-id">${r.cardId}</td>
+          <td><span class="status-tag ${st.cls}"><span class="status-dot"></span>${st.label}</span></td>
+          <td>${r.openDate}</td>
+          <td>${r.expireDate}</td>
+          <td><span class="method-tag ${mt.cls}">${mt.label}</span></td>
+          <td class="td-amount">¥${r.exclusiveAmt}</td>
+          ${couponTd}
+          <td>
+            <button class="btn-link" onclick="openOrderDrawer('${r.id}', '${r.cardId}')">&nbsp;查看优惠订单</button>
+          </td>
+        </tr>`;
+    }).join('');
+
+    /* 分页信息 */
+    document.getElementById('total-count').textContent = filteredData.length;
+    document.getElementById('page-total').textContent = filteredData.length;
+    document.getElementById('page-start').textContent = filteredData.length === 0 ? 0 : start + 1;
+    document.getElementById('page-end').textContent = end;
+
+    renderPageNums();
+    document.getElementById('btn-prev').disabled = currentPage === 1;
+    document.getElementById('btn-next').disabled = end >= filteredData.length;
+  }
+
+  function renderPageNums() {
+    const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+    const container = document.getElementById('page-nums');
+    let html = '';
+    for (let p = 1; p <= totalPages; p++) {
+      if (totalPages <= 7 || p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1) {
+        html += `<button class="page-btn${p === currentPage ? ' active' : ''}" onclick="jumpPage(${p})">${p}</button>`;
+      } else if (Math.abs(p - currentPage) === 2) {
+        html += `<span style="color:#bbb;padding:0 2px">…</span>`;
+      }
+    }
+    container.innerHTML = html;
+  }
+
+  /* ===== 检索交互 ===== */
+  function doSearch() {
+    const user   = document.getElementById('f-user').value.trim();
+    const start  = document.getElementById('f-date-start').value;
+    const end    = document.getElementById('f-date-end').value;
+    const status = document.getElementById('f-status').value;
+    const method = document.getElementById('f-method').value;
+
+    filteredData = ALL_DATA.filter(r => {
+    if (user && !r.id.includes(user)) return false;
+      if (start && r.openDate < start) return false;
+      if (end   && r.openDate > end)   return false;
+      if (status && r.status !== status) return false;
+      if (method && r.method !== method) return false;
+      return true;
+    });
+    currentPage = 1;
+    renderTable();
+  }
+
+  function resetFilter() {
+    document.getElementById('f-user').value = '';
+    document.getElementById('f-date-start').value = '2025-04-01';
+    document.getElementById('f-date-end').value = '2025-05-08';
+    document.getElementById('f-status').value = '';
+    document.getElementById('f-method').value = '';
+    filteredData = [...ALL_DATA];
+    currentPage = 1;
+    renderTable();
+  }
+
+  function goPage(delta) {
+    const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+    currentPage = Math.max(1, Math.min(totalPages, currentPage + delta));
+    renderTable();
+  }
+
+  function jumpPage(p) {
+    currentPage = p;
+    renderTable();
+  }
+
+  function changePageSize() {
+    pageSize = parseInt(document.getElementById('page-size').value);
+    currentPage = 1;
+    renderTable();
+  }
+
+  /* ===== 优惠订单抽屉 ===== */
+  function genOrders(userId) {
+    const seed = parseInt(userId.replace(/\D/g, ''), 10) || 1;
+    const count = (seed % 6) + 2; // 2~7笔
+    return Array.from({ length: count }, (_, i) => {
+      const base = new Date('2025-04-01');
+      base.setDate(base.getDate() + ((seed * 3 + i * 7) % 37));
+      base.setHours(8 + ((seed + i * 5) % 14), (seed * 7 + i * 13) % 60, 0);
+      const dateStr = base.toISOString().slice(0,10).replace(/-/g,'');
+      const orderNo = `SV${dateStr}${String(seed * 3 + i + 100000).slice(-6)}`;
+      const chargeTime = base.toISOString().slice(0,16).replace('T',' ');
+      const excAmt = ((seed % 8 + i + 1) * 0.76 + 0.5).toFixed(2);
+      const cpnAmt = ((seed + i) % 3 === 0) ? '0.00' : ((i + 1) * 1.5 + 1.5).toFixed(2);
+      return { orderNo, chargeTime, excAmt, cpnAmt };
+    });
+  }
+
+  function openOrderDrawer(userId, cardId) {
+    const orders = genOrders(userId);
+
+    // 将每笔订单展开为逐条权益记录
+    const benefits = [];
+    orders.forEach(o => {
+      if (parseFloat(o.excAmt) > 0) {
+        benefits.push({ amt: o.excAmt, type: '月卡专属价', time: o.chargeTime, orderNo: o.orderNo });
+      }
+      if (o.cpnAmt !== '0.00') {
+        benefits.push({ amt: o.cpnAmt, type: '优惠券', time: o.chargeTime, orderNo: o.orderNo });
+      }
+    });
+
+    const rows = benefits.map(b => `
+      <tr>
+        <td class="td-amount">¥${b.amt}</td>
+        <td><span style="font-size:12px;padding:2px 7px;border-radius:3px;background:${b.type === '月卡专属价' ? '#EAF7F4' : '#EAF3FF'};color:${b.type === '月卡专属价' ? '#0B7B6B' : '#1876D2'}">${b.type}</span></td>
+        <td style="color:#888;font-size:12px">${b.time}</td>
+        <td style="font-variant-numeric:tabular-nums;color:#555;font-size:12px">${b.orderNo}</td>
+      </tr>`).join('');
+
+    document.getElementById('drawer-body').innerHTML = `
+      <div class="drawer-table-wrap">
+        <table class="drawer-table">
+          <thead>
+            <tr>
+              <th>优惠金额</th>
+              <th>优惠类型</th>
+              <th>权益核销时间</th>
+              <th>服务单编号</th>
+            </tr>
+          </thead>
+          <tbody>${rows || '<tr><td colspan="4" class="drawer-empty">暂无记录</td></tr>'}</tbody>
+        </table>
+      </div>`;
+
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('order-drawer').classList.add('open');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.getElementById('order-drawer').classList.remove('open');
+  }
+
+  /* 初始化 */
+  renderTable();
+</script>
+</body>
+</html>

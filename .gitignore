@@ -5,6 +5,7 @@
 *.html
 !car-series.html
 !whitelist-car-series.html
+!monthly-card-detail.html
 !monthly-card-basic-config-v2.html
 !index.html
 !index-unrelated.html
