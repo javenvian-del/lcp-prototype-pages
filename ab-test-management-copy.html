@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AB 测试管理 — 充电运营平台</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif; font-size: 14px; color: #333; background: #F0F2F0; height: 100vh; overflow: hidden; }
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar { width: 188px; min-width: 188px; background: #1A3530; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-logo { padding: 14px 16px; display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.3px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.logo-icon { width: 28px; height: 28px; background: #0B7B6B; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.menu-section { padding: 6px 0; }
+.menu-group-label { padding: 10px 16px 4px; font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.5px; user-select: none; }
+.menu-item { display: flex; align-items: center; padding: 9px 16px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.65); transition: background 0.15s, color 0.15s; gap: 8px; user-select: none; }
+.menu-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+.menu-item.active { background: #0B7B6B; color: #fff; }
+.menu-item-text { flex: 1; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; margin-top: auto; flex-shrink: 0; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: #0B7B6B; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
+.avatar-name { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.topbar { height: 46px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 24px; font-size: 15px; font-weight: 500; color: #222; flex-shrink: 0; }
+.page-body { flex: 1; overflow-y: auto; padding: 16px 24px 80px; }
+.page-body::-webkit-scrollbar { width: 5px; }
+.page-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+.view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.view.active { display: flex; }
+
+/* BREADCRUMB */
+.breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; font-size: 13px; }
+.bc-path { color: #999; cursor: pointer; }
+.bc-path:hover { color: #0B7B6B; }
+.bc-sep { color: #ddd; }
+.bc-current { color: #333; }
+
+/* CARD */
+.card { background: #fff; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; }
+.card-title-dot { width: 3px; height: 14px; background: #0B7B6B; border-radius: 2px; }
+
+/* FORM */
+.form-row { display: flex; align-items: flex-start; gap: 0; margin-bottom: 20px; }
+.form-row:last-child { margin-bottom: 0; }
+.form-label { width: 160px; min-width: 160px; font-size: 13px; color: #555; padding-top: 7px; line-height: 1.4; flex-shrink: 0; }
+.form-label .required { color: #D93025; margin-right: 2px; }
+.form-label .hint { display: block; font-size: 12px; color: #aaa; margin-top: 3px; }
+.form-content { flex: 1; min-width: 0; }
+.form-control { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 10px; font-size: 13px; color: #333; outline: none; background: #fff; transition: border-color 0.15s; font-family: inherit; }
+.form-control:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+.form-control::placeholder { color: #bbb; }
+select.form-control { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; cursor: pointer; }
+.form-hint { margin-top: 5px; font-size: 12px; color: #aaa; line-height: 1.5; }
+
+/* BUTTONS */
+.btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s; border: none; white-space: nowrap; font-family: inherit; }
+.btn-primary { background: #0B7B6B; color: #fff; border: 1px solid #0B7B6B; }
+.btn-primary:hover { background: #096B5D; }
+.btn-default { background: #fff; color: #555; border: 1px solid #d9d9d9; }
+.btn-default:hover { border-color: #0B7B6B; color: #0B7B6B; }
+.btn-link { background: none; border: none; color: #0B7B6B; padding: 0; height: auto; font-size: 13px; cursor: pointer; font-family: inherit; }
+.btn-link:hover { text-decoration: underline; }
+.btn-sm { height: 28px !important; padding: 0 12px !important; font-size: 12px !important; }
+.btn-danger-link { background: none; border: none; color: #D93025; padding: 0; height: auto; font-size: 13px; cursor: pointer; font-family: inherit; }
+.btn-danger-link:hover { text-decoration: underline; }
+
+/* STATUS TAGS */
+.tag { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 3px; font-size: 12px; white-space: nowrap; }
+.tag-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.tag-running { background: #E6F7F4; color: #0B7B6B; }
+.tag-running .tag-dot { background: #0B7B6B; }
+.tag-pending { background: #E8F4FF; color: #1677FF; }
+.tag-pending .tag-dot { background: #1677FF; }
+.tag-ended { background: #f0f0f0; color: #999; }
+.tag-ended .tag-dot { background: #bbb; }
+.tag-terminated { background: #FFF1F0; color: #CF1322; }
+.tag-terminated .tag-dot { background: #FF4D4F; }
+
+/* LIST PAGE */
+.action-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.filter-select { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 28px 0 10px; font-size: 13px; color: #333; outline: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 9px center; appearance: none; cursor: pointer; font-family: inherit; }
+.filter-input { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 10px; font-size: 13px; color: #333; outline: none; font-family: inherit; }
+.filter-input:focus { border-color: #0B7B6B; }
+.filter-input::placeholder { color: #bbb; }
+
+/* DATA TABLE */
+.data-table-wrap { background: #fff; border-radius: 4px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead tr { border-bottom: 2px solid #f0f0f0; }
+.data-table thead th { padding: 11px 14px; text-align: left; font-weight: 500; color: #888; white-space: nowrap; font-size: 12px; }
+.data-table tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.12s; }
+.data-table tbody tr:last-child { border-bottom: none; }
+.data-table tbody tr:hover { background: #f7fffd; }
+.data-table tbody td { padding: 12px 14px; color: #333; vertical-align: middle; }
+.td-name { font-weight: 500; color: #222; }
+.td-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+.td-actions { display: flex; align-items: center; gap: 12px; }
+.module-tag { display: inline-block; font-size: 11px; color: #0B7B6B; background: #E6F7F4; border-radius: 3px; padding: 1px 6px; }
+.empty-state { text-align: center; padding: 48px 0; color: #bbb; font-size: 13px; }
+
+/* PAGINATION */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid #f0f0f0; }
+.page-info { font-size: 13px; color: #888; }
+.page-info span { color: #333; font-weight: 500; }
+.page-controls { display: flex; align-items: center; gap: 6px; }
+.page-btn { height: 28px; min-width: 28px; padding: 0 8px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; font-size: 13px; color: #555; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s; font-family: inherit; }
+.page-btn:hover:not(:disabled) { border-color: #0B7B6B; color: #0B7B6B; }
+.page-btn.active { background: #0B7B6B; border-color: #0B7B6B; color: #fff; cursor: default; }
+.page-btn:disabled { color: #ccc; cursor: not-allowed; }
+
+/* FOOTER BAR */
+.footer-bar { position: fixed; bottom: 0; right: 0; left: 188px; height: 60px; background: #fff; border-top: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: flex-end; padding: 0 40px; gap: 12px; z-index: 50; }
+.hidden { display: none !important; }
+
+/* ---- CREATE PAGE SPECIFIC ---- */
+
+/* 步骤条 */
+.steps { display: flex; align-items: center; gap: 0; margin-bottom: 24px; }
+.step-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #bbb; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #d9d9d9; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; transition: all 0.2s; }
+.step-item.active { color: #0B7B6B; }
+.step-item.active .step-num { border-color: #0B7B6B; background: #0B7B6B; color: #fff; }
+.step-item.done { color: #aaa; }
+.step-item.done .step-num { border-color: #0B7B6B; background: #E6F7F4; color: #0B7B6B; }
+.step-line { flex: 1; height: 1px; background: #e8e8e8; margin: 0 8px; min-width: 40px; }
+
+/* 变量选择面板 */
+.var-picker { border: 1px solid #e8e8e8; border-radius: 4px; padding: 14px 16px; background: #fafafa; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.var-check-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #333; cursor: pointer; padding: 4px 10px; border-radius: 4px; border: 1px solid #e8e8e8; background: #fff; transition: all 0.12s; user-select: none; }
+.var-check-item:hover { border-color: #0B7B6B; color: #0B7B6B; }
+.var-check-item.selected { border-color: #0B7B6B; background: #E6F7F4; color: #0B7B6B; }
+.var-check-item .check-icon { width: 14px; height: 14px; border: 1.5px solid #d9d9d9; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.12s; }
+.var-check-item.selected .check-icon { background: #0B7B6B; border-color: #0B7B6B; }
+.var-check-item.selected .check-icon::after { content: ''; width: 8px; height: 4px; border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff; transform: rotate(-45deg) translate(1px, -1px); display: block; }
+.no-module-hint { font-size: 13px; color: #bbb; padding: 4px 0; }
+
+/* 变量对比表 */
+.var-compare-table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
+.var-compare-table thead tr { background: #fafafa; border-bottom: 1px solid #e8e8e8; }
+.var-compare-table thead th { padding: 9px 14px; font-weight: 500; color: #888; text-align: left; font-size: 12px; }
+.var-compare-table tbody tr { border-bottom: 1px solid #f0f0f0; }
+.var-compare-table tbody tr:last-child { border-bottom: none; }
+.var-compare-table tbody td { padding: 12px 14px; vertical-align: top; }
+.var-name-cell { width: 160px; font-weight: 500; color: #333; }
+.var-name-cell .var-type-badge { display: inline-block; font-size: 11px; color: #888; background: #f0f0f0; border-radius: 2px; padding: 0 5px; margin-top: 3px; }
+.control-val { font-size: 13px; color: #888; background: #f7f7f7; border: 1px solid #eee; border-radius: 4px; padding: 5px 10px; line-height: 1.5; display: inline-block; max-width: 100%; }
+.control-val.empty { color: #ccc; font-style: italic; }
+
+/* 人群配置 */
+.group-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.group-config-box { border: 1px solid #e8e8e8; border-radius: 4px; padding: 16px; }
+.group-config-label { font-size: 12px; color: #888; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.group-badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 2px; font-weight: 600; letter-spacing: 0.3px; }
+.group-badge-ctrl { background: #f0f0f0; color: #777; }
+.group-badge-exp { background: #E6F7F4; color: #0B7B6B; }
+.group-config-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.group-config-row:last-child { margin-bottom: 0; }
+.group-config-row-label { font-size: 13px; color: #555; width: 56px; flex-shrink: 0; }
+
+/* 操作日志弹窗 */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: center; justify-content: center; }
+.modal-box { background: #fff; border-radius: 6px; width: 480px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-size: 15px; font-weight: 600; color: #222; }
+.modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; font-size: 18px; color: #aaa; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+.modal-close:hover { background: #f5f5f5; color: #555; }
+.modal-body { padding: 20px; }
+.modal-footer-btns { padding: 14px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; }
+.promote-option { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1.5px solid #e8e8e8; border-radius: 4px; margin-bottom: 10px; cursor: pointer; transition: all 0.12s; }
+.promote-option:last-child { margin-bottom: 0; }
+.promote-option:hover { border-color: #0B7B6B; background: #f7fffd; }
+.promote-option.selected { border-color: #0B7B6B; background: #E6F7F4; }
+.promote-option input[type=radio] { accent-color: #0B7B6B; margin-top: 2px; flex-shrink: 0; }
+.promote-option-text strong { display: block; font-size: 13px; color: #222; margin-bottom: 3px; }
+.promote-option-text span { font-size: 12px; color: #888; }
+
+/* toast */
+.toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); color: #fff; padding: 8px 20px; border-radius: 4px; font-size: 13px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 5V11M5.5 6.5L8 5L10.5 6.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+    充电运营平台
+  </div>
+  <div class="menu-section">
+    <div class="menu-group-label">基础配置</div>
+    <div class="menu-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+      <span class="menu-item-text">定价管理</span>
+    </div>
+    <div class="menu-group-label">月卡管理</div>
+    <div class="menu-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/></svg>
+      <span class="menu-item-text">月卡策略列表</span>
+    </div>
+    <div class="menu-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span class="menu-item-text">月卡明细</span>
+    </div>
+    <div class="menu-group-label">运营工具</div>
+    <div class="menu-item active">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v2H2zM2 6h6v2H2zM2 10h4v2H2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><circle cx="10.5" cy="10.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M12.5 12.5L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span class="menu-item-text">AB 测试管理</span>
+    </div>
+    <div class="menu-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2L13 5.8L10 8.7L10.7 13L7 11L3.3 13L4 8.7L1 5.8L5.2 5.2L7 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <span class="menu-item-text">活动中心</span>
+    </div>
+    <div class="menu-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L6 4.5L9 7.5L11.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="menu-item-text">数据看板</span>
+    </div>
+    <div class="menu-group-label">系统</div>
+    <div class="menu-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span class="menu-item-text">账务管理</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">范</div>
+    <span class="avatar-name">范文杰</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ======= VIEW: LIST ======= -->
+  <div class="view active" id="view-list">
+    <div class="topbar">运营工具 / AB 测试管理</div>
+    <div class="page-body">
+
+      <div class="action-bar">
+        <div class="filter-bar">
+          <select class="filter-select" style="width:120px">
+            <option value="">全部模块</option>
+            <option>月卡模块</option>
+            <option>订单模块</option>
+            <option>活动模块</option>
+          </select>
+          <select class="filter-select" style="width:110px">
+            <option value="">全部状态</option>
+            <option>待开始</option>
+            <option>进行中</option>
+            <option>已结束</option>
+            <option>已终止</option>
+          </select>
+          <input class="filter-input" placeholder="搜索实验名称" style="width:200px">
+        </div>
+        <button class="btn btn-primary" onclick="goCreate()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          新建实验
+        </button>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:260px">实验名称</th>
+              <th style="width:130px">策略 ID</th>
+              <th style="width:100px">所属模块</th>
+              <th style="width:80px">状态</th>
+              <th style="width:130px">实验组人群</th>
+              <th style="width:190px">实验周期</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="list-tbody"></tbody>
+        </table>
+        <div class="pagination">
+          <div class="page-info">共 <span>5</span> 条实验</div>
+          <div class="page-controls">
+            <button class="page-btn" disabled>
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M6 1L1 5.5L6 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn" disabled>
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M1 1l5 4.5L1 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======= VIEW: CREATE ======= -->
+  <div class="view" id="view-create">
+    <div class="topbar" id="create-topbar">运营工具 / AB 测试管理 / 新建实验</div>
+    <div class="page-body">
+
+      <div class="breadcrumb">
+        <span class="bc-path" onclick="goList()">AB 测试管理</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-current" id="create-bc">新建实验</span>
+      </div>
+
+      <!-- 步骤条 -->
+      <div class="steps">
+        <div class="step-item active" id="step1-item">
+          <div class="step-num">1</div>
+          <span>基本信息</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" id="step2-item">
+          <div class="step-num">2</div>
+          <span>变量配置</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" id="step3-item">
+          <div class="step-num">3</div>
+          <span>人群配置</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: 基本信息 -->
+      <div id="step1-content">
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot"></div>基本信息</div>
+          <div class="form-row">
+            <div class="form-label"><span class="required">*</span>实验名称</div>
+            <div class="form-content">
+              <input class="form-control" id="exp-name" placeholder="请输入实验名称，建议包含模块和测试目标" style="width:400px;max-width:100%">
+              <div class="form-hint">例：月卡弹窗标题文案优化 v1</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><span class="required">*</span>所属模块
+              <span class="hint">决定可选变量范围</span>
+            </div>
+            <div class="form-content">
+              <select class="form-control" id="exp-module" style="width:240px" onchange="onModuleChange()">
+                <option value="">请选择模块</option>
+                <option value="monthly-card">月卡模块</option>
+                <option value="order">订单模块</option>
+                <option value="activity">活动模块</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><span class="required">*</span>实验周期</div>
+            <div class="form-content">
+              <div style="display:flex;align-items:center;gap:10px">
+                <input class="form-control" type="date" id="exp-start" style="width:160px" value="2026-06-05">
+                <span style="color:#bbb;font-size:13px">至</span>
+                <input class="form-control" type="date" id="exp-end" style="width:160px" value="2026-07-05">
+              </div>
+              <div class="form-hint">建议实验周期不少于 14 天，以获取足够样本量</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">备注</div>
+            <div class="form-content">
+              <textarea class="form-control" id="exp-remark" placeholder="选填，记录实验背景或假设" style="height:72px;width:480px;max-width:100%;resize:vertical;padding:8px 10px;line-height:1.6"></textarea>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+          <button class="btn btn-default" onclick="goList()">取消</button>
+          <button class="btn btn-primary" onclick="goStep(2)">下一步：配置变量</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: 变量配置 -->
+      <div id="step2-content" class="hidden">
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot"></div>变量配置</div>
+
+          <div class="form-row">
+            <div class="form-label">选择实验变量
+              <span class="hint">勾选本次要测试的字段</span>
+            </div>
+            <div class="form-content">
+              <div class="var-picker" id="var-picker">
+                <span class="no-module-hint">请先在上一步选择所属模块</span>
+              </div>
+              <div class="form-hint">对照组将沿用各字段的基础配置当前值，实验组填写你想测试的新值</div>
+            </div>
+          </div>
+
+          <!-- 变量对比表（动态渲染） -->
+          <div id="var-compare-wrap" class="hidden">
+            <div class="form-row" style="margin-bottom:0">
+              <div class="form-label"></div>
+              <div class="form-content">
+                <table class="var-compare-table" id="var-compare-table">
+                  <thead>
+                    <tr>
+                      <th style="width:160px">变量</th>
+                      <th>对照组<span style="font-size:11px;font-weight:400;color:#bbb;margin-left:6px">沿用基础配置，不可修改</span></th>
+                      <th>实验组<span style="font-size:11px;font-weight:400;color:#bbb;margin-left:6px">填写实验值</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="var-compare-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+          <button class="btn btn-default" onclick="goStep(1)">上一步</button>
+          <button class="btn btn-primary" onclick="goStep(3)">下一步：配置人群</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: 人群配置 -->
+      <div id="step3-content" class="hidden">
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot"></div>人群配置</div>
+          <div class="form-row" style="margin-bottom:0">
+            <div class="form-label"><span class="required">*</span>分组设置
+              <span class="hint">从已有人群中选择</span>
+            </div>
+            <div class="form-content">
+              <div class="group-config-box">
+                <div class="group-config-label">
+                  <span class="group-badge group-badge-exp">实验组</span>
+                  使用实验配置值
+                </div>
+                <div class="group-config-row">
+                  <div class="group-config-row-label">人群</div>
+                  <select class="form-control" style="flex:1" id="exp-audience">
+                    <option value="">请选择人群</option>
+                    <option>全量用户</option>
+                    <option>理想车主_活跃</option>
+                    <option>三方用户_新用户</option>
+                    <option>三方用户_活跃</option>
+                    <option>新用户_首充未开卡</option>
+                    <option>高价值用户</option>
+                  </select>
+                </div>
+                <div class="form-hint" style="margin-top:4px">实验组以外的用户沿用基础配置，不受影响</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+          <button class="btn btn-default" onclick="goStep(2)">上一步</button>
+          <button class="btn btn-primary" onclick="launchExp()">创建实验</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- 操作日志弹窗 -->
+<div class="modal-overlay hidden" id="log-modal">
+  <div class="modal-box" style="width:560px">
+    <div class="modal-header">
+      <div class="modal-title">操作日志</div>
+      <button class="modal-close" onclick="closeLog()">×</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <table class="data-table" id="log-table">
+        <thead>
+          <tr>
+            <th style="width:160px">操作时间</th>
+            <th style="width:80px">操作人</th>
+            <th style="width:100px">操作类型</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer-btns">
+      <button class="btn btn-default" onclick="closeLog()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== 数据 ======
+const EXPERIMENTS = [
+  {
+    id: 1, strategyId: 'EXP-2026-0051', name: '月卡弹窗标题文案优化', module: '月卡模块',
+    status: 'running',
+    ctrlAudience: '三方用户_活跃', expAudience: '三方用户_新用户',
+    start: '2026-05-20', end: '2026-06-20',
+    vars: [{ name: '弹窗标题文案', ctrlVal: '未配置', expVal: '本次充电节省不多，但月卡还有更多次数等你用' }]
+  },
+  {
+    id: 2, strategyId: 'EXP-2026-0038', name: '三方用户素材 A/B', module: '月卡模块',
+    status: 'ended',
+    ctrlAudience: '三方用户_活跃', expAudience: '三方用户_新用户',
+    start: '2026-04-01', end: '2026-04-30',
+    vars: [{ name: '三方用户顶部素材', ctrlVal: 'banner_third_v1.jpg', expVal: 'banner_third_v2.jpg' }]
+  },
+  {
+    id: 3, strategyId: 'EXP-2026-0057', name: '启动页引导文案测试', module: '月卡模块',
+    status: 'pending',
+    ctrlAudience: '理想车主_活跃', expAudience: '新用户_首充未开卡',
+    start: '2026-06-10', end: '2026-07-10',
+    vars: [{ name: '启动页开卡引导文案', ctrlVal: '开通超充月卡，畅享专属超充价', expVal: '首月立省 200 元，现在开卡' }]
+  },
+  {
+    id: 4, strategyId: 'EXP-2026-0044', name: '订单页推荐文案实验', module: '订单模块',
+    status: 'running',
+    ctrlAudience: '全量用户', expAudience: '高价值用户',
+    start: '2026-05-15', end: '2026-06-15',
+    vars: [{ name: '结算页推荐文案', ctrlVal: '为你推荐超充月卡', expVal: '本单可省 18 元，开通月卡更划算' }]
+  },
+  {
+    id: 5, strategyId: 'EXP-2026-0021', name: '充电桩推荐策略文案', module: '订单模块',
+    status: 'terminated',
+    ctrlAudience: '全量用户', expAudience: '新用户',
+    start: '2026-03-01', end: '2026-03-31',
+    vars: [{ name: '免排队提示文案', ctrlVal: '会员享专属超充通道', expVal: '月卡用户优先充电，等待更少' }]
+  }
+];
+
+const STATUS_MAP = {
+  running:    { label: '进行中', cls: 'tag-running'    },
+  pending:    { label: '待开始', cls: 'tag-pending'    },
+  ended:      { label: '已结束', cls: 'tag-ended'      },
+  terminated: { label: '已终止', cls: 'tag-terminated' }
+};
+
+// 变量注册表
+const MODULE_VARS = {
+  'monthly-card': [
+    { key: 'third_banner',  name: '三方用户顶部素材',  type: '图片', ctrlVal: 'banner_third_v1.jpg' },
+    { key: 'guide_copy',    name: '启动页开卡引导文案', type: '文本', ctrlVal: '开通超充月卡，畅享专属超充价，本月立省 200 元' },
+    { key: 'popup_title',   name: '弹窗标题文案',       type: '文本', ctrlVal: '未配置' }
+  ],
+  'order': [
+    { key: 'recommend_copy', name: '结算页推荐文案',   type: '文本', ctrlVal: '为你推荐超充月卡' },
+    { key: 'no_queue_tip',  name: '免排队提示文案',    type: '文本', ctrlVal: '会员享专属超充通道' }
+  ],
+  'activity': [
+    { key: 'activity_banner', name: '活动 Banner 素材', type: '图片', ctrlVal: '未配置' },
+    { key: 'activity_title',  name: '活动标题',         type: '文本', ctrlVal: '超充月卡限时优惠' }
+  ]
+};
+
+// ====== 列表渲染 ======
+function renderList() {
+  const tbody = document.getElementById('list-tbody');
+  tbody.innerHTML = EXPERIMENTS.map(exp => {
+    const st = STATUS_MAP[exp.status];
+    const period = exp.start === '—' ? '<span style="color:#bbb">未设置</span>' : `${exp.start} ~ ${exp.end}`;
+    const actions = buildActions(exp);
+    return `<tr>
+      <td>
+        <div class="td-name">${exp.name}</div>
+        <div class="td-sub">${exp.vars.length > 0 ? exp.vars.map(v => v.name).join('、') : '暂无变量'}</div>
+      </td>
+      <td style="font-size:12px;color:#888;font-family:'SF Mono','Menlo','Consolas',monospace;letter-spacing:0.3px">${exp.strategyId}</td>
+      <td><span class="module-tag">${exp.module}</span></td>
+      <td><span class="tag ${st.cls}"><span class="tag-dot"></span>${st.label}</span></td>
+      <td style="color:#555">${exp.expAudience}</td>
+      <td style="color:#888;font-size:12px">${period}</td>
+      <td><div class="td-actions">${actions}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildActions(exp) {
+  const log = `<span class="btn-link" onclick="openLog(${exp.id})">操作日志</span>`;
+  if (exp.status === 'pending') {
+    return `<span class="btn-link" onclick="editExp(${exp.id})">编辑</span>` +
+      `<span class="btn-danger-link" onclick="offlineExp(${exp.id})">下线</span>` + log;
+  }
+  if (exp.status === 'running') {
+    return `<span class="btn-link" onclick="viewExp(${exp.id})">查看</span>` +
+      `<span class="btn-danger-link" onclick="offlineExp(${exp.id})">下线</span>` + log;
+  }
+  return `<span class="btn-link" onclick="viewExp(${exp.id})">查看</span>` + log;
+}
+
+// ====== 视图切换 ======
+function goList() {
+  document.getElementById('view-list').classList.add('active');
+  document.getElementById('view-create').classList.remove('active');
+  renderList();
+}
+
+function goCreate() {
+  currentEditId = null;
+  resetCreateForm();
+  document.getElementById('create-bc').textContent = '新建实验';
+  document.getElementById('create-topbar').textContent = '运营工具 / AB 测试管理 / 新建实验';
+  document.getElementById('view-list').classList.remove('active');
+  document.getElementById('view-create').classList.add('active');
+  goStep(1);
+}
+
+function editExp(id) {
+  const exp = EXPERIMENTS.find(e => e.id === id);
+  currentEditId = id;
+  document.getElementById('create-bc').textContent = '编辑实验';
+  document.getElementById('create-topbar').textContent = '运营工具 / AB 测试管理 / 编辑实验';
+  document.getElementById('view-list').classList.remove('active');
+  document.getElementById('view-create').classList.add('active');
+  // prefill basic info
+  document.getElementById('exp-name').value = exp.name;
+  document.getElementById('exp-start').value = exp.start === '—' ? '' : exp.start;
+  document.getElementById('exp-end').value = exp.end === '—' ? '' : exp.end;
+  goStep(1);
+}
+
+// ====== 步骤逻辑 ======
+let currentStep = 1;
+let currentEditId = null;
+let selectedVars = {};
+
+function goStep(n) {
+  currentStep = n;
+  [1,2,3].forEach(i => {
+    document.getElementById('step' + i + '-content').classList.toggle('hidden', i !== n);
+    const item = document.getElementById('step' + i + '-item');
+    item.classList.remove('active', 'done');
+    if (i === n) item.classList.add('active');
+    else if (i < n) item.classList.add('done');
+  });
+  if (n === 2) refreshVarPicker();
+}
+
+function resetCreateForm() {
+  document.getElementById('exp-name').value = '';
+  document.getElementById('exp-module').value = '';
+  document.getElementById('exp-start').value = '';
+  document.getElementById('exp-end').value = '';
+  document.getElementById('exp-remark').value = '';
+  selectedVars = {};
+  document.getElementById('var-picker').innerHTML = '<span class="no-module-hint">请先在上一步选择所属模块</span>';
+  document.getElementById('var-compare-body').innerHTML = '';
+  document.getElementById('var-compare-wrap').classList.add('hidden');
+}
+
+// ====== 变量配置 ======
+function onModuleChange() {
+  selectedVars = {};
+  refreshVarPicker();
+}
+
+// 刷新变量选择面板（不重置 selectedVars，goStep(2) 和 onModuleChange 共用）
+function refreshVarPicker() {
+  const mod = document.getElementById('exp-module').value;
+  const picker = document.getElementById('var-picker');
+  if (!mod || !MODULE_VARS[mod]) {
+    picker.innerHTML = '<span class="no-module-hint">请先在上一步选择所属模块</span>';
+    document.getElementById('var-compare-wrap').classList.add('hidden');
+    return;
+  }
+  const vars = MODULE_VARS[mod];
+  picker.innerHTML = vars.map(v =>
+    `<div class="var-check-item${selectedVars[v.key] !== undefined ? ' selected' : ''}" id="vci-${v.key}" onclick="toggleVar('${v.key}')">
+      <div class="check-icon"></div>${v.name}
+      <span style="font-size:11px;color:#bbb;margin-left:4px">${v.type}</span>
+    </div>`
+  ).join('');
+  renderVarTable();
+}
+
+function toggleVar(key) {
+  if (selectedVars.hasOwnProperty(key)) {
+    delete selectedVars[key];
+    document.getElementById('vci-' + key).classList.remove('selected');
+  } else {
+    selectedVars[key] = '';
+    document.getElementById('vci-' + key).classList.add('selected');
+  }
+  renderVarTable();
+}
+
+function renderVarTable() {
+  const keys = Object.keys(selectedVars);
+  const wrap = document.getElementById('var-compare-wrap');
+  const body = document.getElementById('var-compare-body');
+  if (keys.length === 0) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+
+  const mod = document.getElementById('exp-module').value;
+  const vars = MODULE_VARS[mod] || [];
+  body.innerHTML = keys.map(key => {
+    const v = vars.find(x => x.key === key);
+    if (!v) return '';
+    const isLong = v.ctrlVal.length > 20;
+    const ctrlDisplay = `<span class="control-val${v.ctrlVal === '未配置' ? ' empty' : ''}">${v.ctrlVal}</span>`;
+    let expInput;
+    if (v.type === '图片') {
+      expInput = `<button class="btn btn-default btn-sm" style="margin-top:2px">上传图片</button>
+        <div class="form-hint" style="margin-top:4px">支持 JPG / PNG</div>`;
+    } else if (isLong) {
+      expInput = `<textarea class="form-control" id="expval-${key}" placeholder="请输入实验值"
+        style="height:64px;width:100%;resize:vertical;padding:6px 10px;line-height:1.6"
+        oninput="selectedVars['${key}']=this.value">${selectedVars[key]||''}</textarea>`;
+    } else {
+      expInput = `<input class="form-control" id="expval-${key}" placeholder="请输入实验值"
+        style="width:100%" value="${selectedVars[key]||''}"
+        oninput="selectedVars['${key}']=this.value">`;
+    }
+    return `<tr>
+      <td class="var-name-cell">${v.name}<br><span class="var-type-badge">${v.type}</span></td>
+      <td>${ctrlDisplay}</td>
+      <td>${expInput}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ====== 实验操作 ======
+function viewExp(id) { editExp(id); }
+
+function offlineExp(id) {
+  const exp = EXPERIMENTS.find(e => e.id === id);
+  if (!exp) return;
+  const label = exp.status === 'pending' ? '待开始' : '进行中';
+  if (!confirm(`确认将「${exp.name}」从【${label}】状态下线？下线后实验将终止。`)) return;
+  addLog(id, '下线实验', exp.status === 'pending' ? '实验启动前下线' : '实验运行中下线');
+  exp.status = 'terminated';
+  renderList();
+  showToast('实验已下线');
+}
+
+function launchExp() {
+  const name = document.getElementById('exp-name').value || '新实验';
+  EXPERIMENTS.unshift({
+    id: Date.now(), name, module: '月卡模块',
+    status: 'pending',
+    expAudience:  document.getElementById('exp-audience')?.value  || '—',
+    start: document.getElementById('exp-start').value || '—',
+    end:   document.getElementById('exp-end').value   || '—',
+    vars: Object.keys(selectedVars).map(k => ({ name: k, ctrlVal: '—', expVal: selectedVars[k] }))
+  });
+  goList();
+  showToast('实验已创建，状态：待开始 ✓');
+}
+
+// ====== 操作日志 ======
+const LOGS = {
+  1: [
+    { time: '2026-05-20 10:12', operator: '范文杰', type: '上线实验', note: '正式启动实验' },
+    { time: '2026-05-19 17:30', operator: '范文杰', type: '创建实验', note: '配置完成，待上线' }
+  ],
+  2: [
+    { time: '2026-04-30 23:59', operator: '系统',   type: '自动结束', note: '到达实验结束日期' },
+    { time: '2026-04-01 09:00', operator: '李晓明', type: '上线实验', note: '' },
+    { time: '2026-03-29 14:22', operator: '李晓明', type: '创建实验', note: '' }
+  ],
+  3: [
+    { time: '2026-06-03 11:05', operator: '范文杰', type: '创建实验', note: '计划 6/10 启动' }
+  ],
+  4: [
+    { time: '2026-05-15 08:00', operator: '系统',   type: '上线实验', note: '定时自动启动' },
+    { time: '2026-05-12 16:44', operator: '范文杰', type: '创建实验', note: '' }
+  ],
+  5: [
+    { time: '2026-03-15 10:20', operator: '范文杰', type: '下线实验', note: '数据异常，提前终止' },
+    { time: '2026-03-01 09:00', operator: '范文杰', type: '上线实验', note: '' },
+    { time: '2026-02-28 15:30', operator: '范文杰', type: '创建实验', note: '' }
+  ]
+};
+
+function addLog(id, type, note) {
+  if (!LOGS[id]) LOGS[id] = [];
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const time = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  LOGS[id].unshift({ time, operator: '范文杰', type, note });
+}
+
+function openLog(id) {
+  const exp = EXPERIMENTS.find(e => e.id === id);
+  const logs = LOGS[id] || [];
+  document.querySelector('#log-modal .modal-title').textContent = `操作日志 — ${exp?.name || ''}`;
+  document.getElementById('log-tbody').innerHTML = logs.length
+    ? logs.map(l => `<tr>
+        <td style="color:#888;font-size:12px">${l.time}</td>
+        <td style="color:#555">${l.operator}</td>
+        <td><span class="module-tag" style="background:#f0f0f0;color:#555">${l.type}</span></td>
+        <td style="color:#888;font-size:12px">${l.note || '—'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" class="empty-state">暂无操作记录</td></tr>';
+  document.getElementById('log-modal').classList.remove('hidden');
+}
+
+function closeLog() { document.getElementById('log-modal').classList.add('hidden'); }
+
+// ====== Toast ======
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// init
+renderList();
+</script>
+</body>
+</html>

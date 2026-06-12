@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>连续包月明细 — 充电运营平台</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #F0F2F0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== APP SHELL ===== */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 188px; min-width: 188px;
+      background: #1A3530;
+      display: flex; flex-direction: column;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .sidebar::-webkit-scrollbar { width: 0; }
+    .sidebar-logo {
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 9px;
+      font-size: 14px; font-weight: 600; color: #fff;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: #0B7B6B; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .menu-section { padding: 6px 0; }
+    .menu-group-label {
+      padding: 10px 16px 4px;
+      font-size: 11px; color: rgba(255,255,255,0.35);
+      letter-spacing: 0.5px; user-select: none;
+    }
+    .menu-item {
+      display: flex; align-items: center;
+      padding: 9px 16px; cursor: pointer;
+      font-size: 13px; color: rgba(255,255,255,0.65);
+      transition: background 0.15s, color 0.15s;
+      gap: 8px; user-select: none;
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .menu-item.active { background: #0B7B6B; color: #fff; }
+    .menu-item-text { flex: 1; }
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 8px;
+      margin-top: auto; flex-shrink: 0;
+    }
+    .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #0B7B6B;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #fff; flex-shrink: 0;
+    }
+    .avatar-name { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+    /* ===== MAIN ===== */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+    .topbar {
+      height: 46px; background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      font-size: 15px; font-weight: 500; color: #222;
+      flex-shrink: 0;
+    }
+    .page-body { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+    .page-body::-webkit-scrollbar { width: 5px; }
+    .page-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    /* ===== BREADCRUMB ===== */
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 16px; font-size: 13px;
+    }
+    .bc-path { color: #999; cursor: pointer; }
+    .bc-path:hover { color: #0B7B6B; }
+    .bc-sep { color: #ddd; }
+    .bc-current { color: #333; }
+
+    /* ===== CARD ===== */
+    .card {
+      background: #fff; border-radius: 4px;
+      padding: 20px 24px; margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 14px; font-weight: 600; color: #222;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title-dot { width: 3px; height: 14px; background: #0B7B6B; border-radius: 2px; }
+
+    /* ===== 筛选区 ===== */
+    .filter-row {
+      display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+    }
+    .filter-field { display: flex; flex-direction: column; gap: 4px; }
+    .filter-label { font-size: 12px; color: #888; }
+    .filter-control {
+      height: 32px; border: 1px solid #d9d9d9; border-radius: 4px;
+      padding: 0 10px; font-size: 13px; color: #333;
+      outline: none; background: #fff; font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .filter-control:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+    .filter-control::placeholder { color: #bbb; }
+    select.filter-control {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      padding-right: 28px; cursor: pointer;
+    }
+    .filter-actions { display: flex; gap: 8px; padding-bottom: 1px; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      height: 32px; padding: 0 16px; border-radius: 4px;
+      font-size: 13px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.15s; border: none;
+      white-space: nowrap; font-family: inherit;
+    }
+    .btn-primary { background: #0B7B6B; color: #fff; border: 1px solid #0B7B6B; }
+    .btn-primary:hover { background: #096B5D; }
+    .btn-default { background: #fff; color: #555; border: 1px solid #d9d9d9; }
+    .btn-default:hover { border-color: #0B7B6B; color: #0B7B6B; }
+    .btn-link { background: none; border: none; color: #0B7B6B; padding: 0; height: auto; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .btn-link:hover { text-decoration: underline; }
+
+    /* ===== 统计栏 ===== */
+    .stat-bar {
+      display: flex; gap: 24px;
+      padding: 12px 16px;
+      background: #f7fffd;
+      border: 1px solid #e0f5f0;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 13px; color: #555;
+    }
+    .stat-item { display: flex; align-items: center; gap: 6px; }
+    .stat-num { font-size: 18px; font-weight: 600; color: #0B7B6B; line-height: 1; }
+    .stat-num.gray { color: #999; }
+
+    /* ===== TABLE ===== */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table thead tr { border-bottom: 1px solid #f0f0f0; }
+    .data-table thead th {
+      padding: 11px 14px; text-align: left;
+      font-weight: normal; color: #aaa; white-space: nowrap;
+      background: #fafafa;
+    }
+    .data-table tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.12s; }
+    .data-table tbody tr:hover { background: #f7fffd; }
+    .data-table tbody td { padding: 12px 14px; color: #333; vertical-align: middle; }
+    .td-uid {
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      font-size: 12px; color: #555; letter-spacing: 0.2px;
+    }
+    .td-time { font-size: 13px; color: #555; white-space: nowrap; }
+    .td-next-time { font-size: 13px; color: #333; white-space: nowrap; }
+    .td-next-time.none { color: #bbb; }
+
+    /* 状态标签 */
+    .status-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px; border-radius: 3px;
+      font-size: 12px; font-weight: 500; white-space: nowrap;
+    }
+    .status-tag.active { background: #e8f7f4; color: #0B7B6B; }
+    .status-tag.cancelled { background: #f5f5f5; color: #999; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .status-tag.active .status-dot { background: #0B7B6B; }
+    .status-tag.cancelled .status-dot { background: #ccc; }
+
+    /* ===== 分页 ===== */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0f0f0;
+    }
+    .page-info { font-size: 13px; color: #888; }
+    .page-info span { color: #333; font-weight: 500; }
+    .page-controls { display: flex; align-items: center; gap: 6px; }
+    .page-btn {
+      height: 28px; min-width: 28px; padding: 0 8px;
+      border: 1px solid #d9d9d9; border-radius: 4px;
+      background: #fff; font-size: 13px; color: #555;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.12s; font-family: inherit;
+    }
+    .page-btn:hover:not(:disabled) { border-color: #0B7B6B; color: #0B7B6B; }
+    .page-btn.active { background: #0B7B6B; border-color: #0B7B6B; color: #fff; cursor: default; }
+    .page-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .page-size-select {
+      height: 28px; border: 1px solid #d9d9d9; border-radius: 4px;
+      padding: 0 22px 0 8px; font-size: 13px; color: #555;
+      outline: none; cursor: pointer; font-family: inherit;
+      appearance: none; -webkit-appearance: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 7px center;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: #fff; border-radius: 6px;
+      width: 520px;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .modal-header {
+      padding: 16px 20px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-title { font-size: 15px; font-weight: 600; color: #222; }
+    .modal-close {
+      width: 28px; height: 28px; border: none; background: none;
+      cursor: pointer; font-size: 18px; color: #aaa;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px; transition: background 0.12s;
+    }
+    .modal-close:hover { background: #f5f5f5; color: #555; }
+    .modal-body { padding: 20px 24px; }
+    .modal-footer {
+      padding: 14px 20px; border-top: 1px solid #f0f0f0;
+      display: flex; justify-content: flex-end;
+      flex-shrink: 0;
+    }
+
+    /* 详情字段 */
+    .detail-grid {
+      display: grid; grid-template-columns: 100px 1fr;
+      gap: 0;
+    }
+    .detail-row {
+      display: contents;
+    }
+    .detail-label {
+      padding: 10px 0; font-size: 13px; color: #888;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .detail-value {
+      padding: 10px 0 10px 12px; font-size: 13px; color: #222;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .detail-row:last-child .detail-label,
+    .detail-row:last-child .detail-value { border-bottom: none; }
+
+    /* 分割线标题 */
+    .detail-section {
+      grid-column: 1 / -1;
+      padding: 14px 0 6px;
+      font-size: 12px; color: #aaa; font-weight: 500;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 2px;
+    }
+
+    /* toast */
+    .toast {
+      position: fixed; top: 60px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75); color: #fff;
+      padding: 8px 20px; border-radius: 4px;
+      font-size: 13px; z-index: 999;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="white" stroke-width="1.5" fill="none"/>
+          <path d="M8 5V11M5.5 6.5L8 5L10.5 6.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      充电运营平台
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-group-label">基础配置</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">定价管理</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">电价管理</span>
+      </div>
+
+      <div class="menu-group-label">月卡管理</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">月卡策略列表</span>
+      </div>
+      <div class="menu-item active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">月卡明细</span>
+      </div>
+
+      <div class="menu-group-label">运营工具</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2L13 5.8L10 8.7L10.7 13L7 11L3.3 13L4 8.7L1 5.8L5.2 5.2L7 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">活动中心</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L6 4.5L9 7.5L11.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">数据看板</span>
+      </div>
+
+      <div class="menu-group-label">系统</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">账务管理</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar">范</div>
+      <span class="avatar-name">范文杰</span>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <div class="topbar">月卡管理 / 连续包月明细</div>
+    <div class="page-body">
+
+      <div class="breadcrumb">
+        <span class="bc-path">月卡管理</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-current">连续包月明细</span>
+      </div>
+
+      <!-- 筛选卡片 -->
+      <div class="card">
+        <div class="filter-row">
+          <div class="filter-field">
+            <div class="filter-label">用户 ID</div>
+            <input class="filter-control" id="filter-uid" type="text" placeholder="请输入用户 ID" style="width:200px">
+          </div>
+          <div class="filter-field">
+            <div class="filter-label">连续包月状态</div>
+            <select class="filter-control" id="filter-status" style="width:130px">
+              <option value="">全部</option>
+              <option value="active">生效中</option>
+              <option value="cancelled">已解约</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <div class="filter-label">签约时间</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input class="filter-control" id="filter-date-start" type="date" style="width:148px">
+              <span style="color:#ccc;font-size:12px">—</span>
+              <input class="filter-control" id="filter-date-end" type="date" style="width:148px">
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" onclick="doSearch()">查询</button>
+            <button class="btn btn-default" onclick="doReset()">重置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表卡片 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          连续包月明细
+          <span style="font-size:12px;font-weight:400;color:#aaa;margin-left:4px" id="total-label"></span>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>用户 ID</th>
+              <th>签约时间</th>
+              <th>连续包月状态</th>
+              <th>下次扣费时间</th>
+              <th style="width:80px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="list-tbody"></tbody>
+        </table>
+
+        <div class="pagination">
+          <div class="page-info">
+            第 <span id="page-start">1</span>–<span id="page-end">10</span> 条，共 <span id="page-total">0</span> 条
+          </div>
+          <div class="page-controls">
+            <select class="page-size-select" id="page-size" onchange="changePageSize()">
+              <option value="10">10 条/页</option>
+              <option value="20">20 条/页</option>
+              <option value="50">50 条/页</option>
+            </select>
+            <button class="page-btn" id="btn-prev" onclick="goPage(-1)">
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M6 1L1 5.5L6 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span id="page-nums"></span>
+            <button class="page-btn" id="btn-next" onclick="goPage(1)">
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M1 1l5 4.5L1 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== 详情弹窗 ===== -->
+<div class="modal-overlay hidden" id="detail-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">连续包月详情</div>
+      <button class="modal-close" onclick="closeDetail()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid" id="detail-grid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeDetail()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== 模拟数据 =====
+  const ALL_DATA = [
+    { uid: 'U_10023845', signTime: '2026-05-01 09:12:34', status: 'active',    nextTime: '2026-06-01' },
+    { uid: 'U_10031267', signTime: '2026-04-18 14:55:20', status: 'active',    nextTime: '2026-05-18' },
+    { uid: 'U_10058832', signTime: '2026-03-22 08:30:00', status: 'active',    nextTime: '2026-06-22' },
+    { uid: 'U_10064491', signTime: '2026-05-10 11:04:17', status: 'active',    nextTime: '2026-06-10' },
+    { uid: 'U_10077623', signTime: '2026-02-14 16:22:45', status: 'active',    nextTime: '2026-06-14' },
+    { uid: 'U_10081104', signTime: '2026-04-05 10:18:09', status: 'active',    nextTime: '2026-06-05' },
+    { uid: 'U_10092356', signTime: '2026-01-30 13:45:00', status: 'active',    nextTime: '2026-05-30' },
+    { uid: 'U_10103784', signTime: '2026-05-15 09:00:00', status: 'active',    nextTime: '2026-06-15' },
+    { uid: 'U_10115590', signTime: '2026-03-08 18:33:21', status: 'active',    nextTime: '2026-06-08' },
+    { uid: 'U_10128047', signTime: '2026-04-27 07:50:14', status: 'active',    nextTime: '2026-05-27' },
+    { uid: 'U_10136622', signTime: '2026-04-01 12:00:00', status: 'cancelled', nextTime: null, cancelTime: '2026-05-12 10:24:33', cancelWay: '用户主动解约' },
+    { uid: 'U_10144901', signTime: '2026-03-15 15:20:30', status: 'cancelled', nextTime: null, cancelTime: '2026-04-20 08:11:02', cancelWay: '扣款失败自动解约' },
+    { uid: 'U_10152378', signTime: '2026-02-28 09:45:00', status: 'cancelled', nextTime: null, cancelTime: '2026-03-30 23:59:59', cancelWay: '用户主动解约' },
+    { uid: 'U_10161845', signTime: '2026-05-03 17:08:55', status: 'cancelled', nextTime: null, cancelTime: '2026-05-20 14:37:18', cancelWay: '后台操作解约' },
+    { uid: 'U_10173290', signTime: '2026-01-10 11:30:00', status: 'cancelled', nextTime: null, cancelTime: '2026-02-15 09:05:44', cancelWay: '扣款失败自动解约' },
+  ];
+
+  const STATUS_LABEL = { active: '生效中', cancelled: '已解约' };
+  const CANCEL_WAY_LABEL = { active: '—' };
+
+  let currentData = [...ALL_DATA];
+  let page = 1;
+  let pageSize = 10;
+
+  function doSearch() {
+    const uid    = document.getElementById('filter-uid').value.trim();
+    const status = document.getElementById('filter-status').value;
+    const ds     = document.getElementById('filter-date-start').value;
+    const de     = document.getElementById('filter-date-end').value;
+
+    currentData = ALL_DATA.filter(r => {
+      if (uid    && !r.uid.includes(uid)) return false;
+      if (status && r.status !== status)  return false;
+      if (ds && r.signTime.slice(0, 10) < ds) return false;
+      if (de && r.signTime.slice(0, 10) > de) return false;
+      return true;
+    });
+    page = 1;
+    renderTable();
+  }
+
+  function doReset() {
+    document.getElementById('filter-uid').value = '';
+    document.getElementById('filter-status').value = '';
+    document.getElementById('filter-date-start').value = '';
+    document.getElementById('filter-date-end').value = '';
+    currentData = [...ALL_DATA];
+    page = 1;
+    renderTable();
+  }
+
+  function renderTable() {
+    const total  = currentData.length;
+    const start  = (page - 1) * pageSize;
+    const end    = Math.min(start + pageSize, total);
+    const rows   = currentData.slice(start, end);
+
+    document.getElementById('total-label').textContent = `共 ${total} 条`;
+
+    document.getElementById('page-total').textContent = total;
+    document.getElementById('page-start').textContent = total === 0 ? 0 : start + 1;
+    document.getElementById('page-end').textContent   = end;
+
+    const tbody = document.getElementById('list-tbody');
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px 0;color:#bbb;font-size:13px">暂无数据</td></tr>`;
+    } else {
+      tbody.innerHTML = rows.map((r, i) => {
+        const idx = start + i;
+        const nextCell = r.status === 'active'
+          ? `<td class="td-next-time">${r.nextTime}</td>`
+          : `<td class="td-next-time none">—</td>`;
+        const statusTag = r.status === 'active'
+          ? `<span class="status-tag active"><span class="status-dot"></span>生效中</span>`
+          : `<span class="status-tag cancelled"><span class="status-dot"></span>已解约</span>`;
+        return `
+          <tr>
+            <td class="td-uid">${r.uid}</td>
+            <td class="td-time">${r.signTime}</td>
+            <td>${statusTag}</td>
+            ${nextCell}
+            <td><button class="btn-link" onclick="openDetail(${idx})">查看详情</button></td>
+          </tr>`;
+      }).join('');
+    }
+
+    renderPageNums(total);
+    document.getElementById('btn-prev').disabled = page === 1;
+    document.getElementById('btn-next').disabled = end >= total;
+  }
+
+  function renderPageNums(total) {
+    const totalPages = Math.ceil(total / pageSize) || 1;
+    const container  = document.getElementById('page-nums');
+    let html = '';
+    for (let p = 1; p <= totalPages; p++) {
+      if (totalPages <= 7 || p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+        html += `<button class="page-btn${p === page ? ' active' : ''}" onclick="jumpPage(${p})">${p}</button>`;
+      } else if (Math.abs(p - page) === 2) {
+        html += `<span style="color:#bbb;padding:0 2px">…</span>`;
+      }
+    }
+    container.innerHTML = html;
+  }
+
+  function goPage(delta) {
+    const totalPages = Math.ceil(currentData.length / pageSize) || 1;
+    page = Math.max(1, Math.min(totalPages, page + delta));
+    renderTable();
+  }
+  function jumpPage(p) { page = p; renderTable(); }
+  function changePageSize() {
+    pageSize = parseInt(document.getElementById('page-size').value);
+    page = 1;
+    renderTable();
+  }
+
+  // ===== 详情弹窗 =====
+  function openDetail(idx) {
+    const r = currentData[idx];
+    let rows = `
+      <div class="detail-section">基本信息</div>
+      <div class="detail-row">
+        <div class="detail-label">用户 ID</div>
+        <div class="detail-value" style="font-family:'SF Mono','Menlo',monospace;font-size:12px">${r.uid}</div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">签约时间</div>
+        <div class="detail-value">${r.signTime}</div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">状态</div>
+        <div class="detail-value">${r.status === 'active'
+          ? '<span class="status-tag active"><span class="status-dot"></span>生效中</span>'
+          : '<span class="status-tag cancelled"><span class="status-dot"></span>已解约</span>'}</div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">下次扣费</div>
+        <div class="detail-value">${r.nextTime || '<span style="color:#bbb">—</span>'}</div>
+      </div>
+      <div class="detail-section">解约信息</div>
+      <div class="detail-row">
+        <div class="detail-label">解约时间</div>
+        <div class="detail-value">${r.cancelTime || '<span style="color:#bbb">—</span>'}</div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">解约方式</div>
+        <div class="detail-value">${r.cancelWay || '<span style="color:#bbb">—</span>'}</div>
+      </div>`;
+
+    document.getElementById('detail-grid').innerHTML = rows;
+    document.getElementById('detail-modal').classList.remove('hidden');
+  }
+
+  function closeDetail() {
+    document.getElementById('detail-modal').classList.add('hidden');
+  }
+
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  // 初始化
+  renderTable();
+</script>
+</body>
+</html>
