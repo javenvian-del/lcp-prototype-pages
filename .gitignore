@@ -1,0 +1,10 @@
+.DS_Store
+
+# 中文命名的原型文件只保留在本地，不上传 GitHub
+# 英文文件（通过 name-map.json 对应）才是云端版本
+*.html
+!car-series.html
+!whitelist-car-series.html
+!monthly-card-basic-config-v2.html
+!index.html
+!index-unrelated.html
