@@ -281,11 +281,28 @@ body {
   font-size: 14px; font-weight: 600; color: #374151; cursor: pointer;
 }
 .prov-item.active { background: #E8F6F1; color: #059669; }
-.prov-item.special-item { background: #FFF7ED; color: #D97706; }
-.special-grid {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  gap: 7px; padding: 4px 14px 20px;
+.prov-item.other-item {
+  background: #F3F4F6; color: #6B7280;
+  border: 1.5px dashed #D1D5DB;
+  font-size: 13px;
 }
+/* 自由输入前缀 */
+.prefix-free-wrap {
+  display: flex; align-items: center; gap: 3px;
+  min-width: 66px; flex-shrink: 0;
+  padding: 6px 10px;
+  border-bottom: 2px solid #3B82F6;
+}
+.prefix-free-text {
+  font-size: 17px; font-weight: 700; color: #1A1A1A;
+  letter-spacing: 1px;
+}
+.prefix-cursor {
+  width: 1.5px; height: 18px; background: #3B82F6;
+  border-radius: 1px;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
 /* ═══ SPEC TABLE ═══ */
 .spec-section {
@@ -465,13 +482,8 @@ body {
               <div class="prov-item">宁</div>
               <div class="prov-item">藏</div>
             </div>
-            <div class="picker-section-label">港澳台及其他</div>
-            <div class="special-grid">
-              <div class="prov-item special-item">港</div>
-              <div class="prov-item special-item">澳</div>
-              <div class="prov-item special-item">台</div>
-              <div class="prov-item special-item">军</div>
-              <div class="prov-item special-item">其他</div>
+            <div style="padding: 8px 14px 20px;">
+              <div class="prov-item other-item" style="width:100%;font-size:13px;letter-spacing:0.3px">其他（港澳军牌/境外等，自由输入前缀）</div>
             </div>
           </div>
         </div>
@@ -544,7 +556,7 @@ body {
   <!-- ── SCREEN 4: Non-standard format warning ── -->
   <div class="screen-wrap">
     <div class="screen-badge"><span class="badge-num">04</span> 非标格式提示</div>
-    <div class="screen-desc">前缀为港澳台/军/字母等非汉字省份<br>点击保存不拦截，弹出格式确认弹窗</div>
+    <div class="screen-desc">选「其他」后前缀变为自由输入框，用户输入字母前缀（如军牌 WJ）<br>点击保存不拦截，弹出格式确认弹窗</div>
     <div class="phone">
       <div class="status-bar">
         <span class="status-time">9:41</span>
@@ -567,12 +579,12 @@ body {
         </div>
         <div class="input-section">
           <div class="plate-row">
-            <button class="province-btn special">
-              <span class="province-char">港</span>
-              <span class="province-arrow">▾</span>
-            </button>
+            <div class="prefix-free-wrap">
+              <span class="prefix-free-text">WJ</span>
+              <span class="prefix-cursor"></span>
+            </div>
             <div class="row-divider"></div>
-            <span class="plate-text">AB12345</span>
+            <span class="plate-text">1234567</span>
           </div>
         </div>
         <div class="save-btn-wrap">
@@ -638,7 +650,7 @@ body {
         <td><strong>非标格式提示</strong></td>
         <td>
           <span class="tag-trigger">触发</span><br>
-          <span style="font-size:12px;margin-top:4px;display:block">用户点击保存时，检测到所选前缀不属于 31 个标准省份汉字（港/澳/台/军/字母等）</span>
+          <span style="font-size:12px;margin-top:4px;display:block">用户选择「其他」并自由输入前缀（非标准省份汉字，如字母前缀 WJ / AB 等），点击保存时触发</span>
         </td>
         <td style="color:#374151">
           <strong>标题：</strong>请确认车牌格式<br>
@@ -687,7 +699,7 @@ body {
       </tr>
       <tr>
         <td style="color:#6B7280;font-size:12px;font-weight:600">省份选择器</td>
-        <td style="color:#374151">港澳台/军/其他 选项以橙色区分，用户选择后前缀按钮背景同步变为橙色，便于识别为特殊格式</td>
+        <td style="color:#374151">包含 31 个标准省份 + 「其他（港澳军牌/境外等）」兜底项。选择「其他」后前缀区域切换为自由文本输入框（接受任意字符），不再显示省份下拉按钮</td>
       </tr>
       <tr>
         <td style="color:#6B7280;font-size:12px;font-weight:600">历史数据</td>
