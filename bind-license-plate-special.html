@@ -192,6 +192,19 @@ body {
   cursor: pointer; font-family: inherit;
 }
 
+/* ═══ TEMP PLATE HINT ═══ */
+.temp-hint {
+  background: #FFFBEB;
+  border-left: 3px solid #F59E0B;
+  padding: 10px 12px;
+  margin: 10px 16px 0;
+  border-radius: 0 6px 6px 0;
+}
+.temp-hint-text {
+  font-size: 12px; color: #92400E; line-height: 1.65;
+}
+.temp-hint-text strong { color: #78350F; }
+
 /* ═══ MODAL OVERLAY ═══ */
 .modal-overlay {
   position: absolute; inset: 0;
@@ -577,6 +590,9 @@ body {
       <div class="page-bg">
         <div class="notice-section">
           <div class="notice-text">请确保所填车牌信息准确，车辆需安装正式牌照，临牌、无牌或车牌填写错误将无法享受充电减免停车费优惠。</div>
+        </div>
+        <div class="temp-hint">
+          <div class="temp-hint-text"><strong>临牌提示：</strong>临牌车辆请填写入场时停车场道闸屏幕上显示的识别编号（如 临-XXXXXX），而非临时号牌上的号码。</div>
         </div>
         <div class="input-section">
           <div class="plate-row">
