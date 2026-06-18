@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>充电实况</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;background:#F2F2F7;max-width:390px;margin:0 auto;min-height:100vh}
+.status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px 16px}
+.status-time{font-size:15px;font-weight:700;color:#000;letter-spacing:0.2px}
+.status-right{display:flex;align-items:center;gap:6px}
+.nav-bar{height:44px;display:flex;align-items:center;justify-content:center;position:relative}
+.nav-back{position:absolute;left:12px;display:flex;align-items:center;cursor:pointer}
+.nav-title{font-size:17px;font-weight:600;color:#000}
+.section{background:#fff;margin-bottom:8px;padding:16px 16px 20px}
+.sec-row{display:flex;align-items:center;gap:5px;margin-bottom:12px}
+.sec-title{font-size:17px;font-weight:600;color:#1A1A1A}
+.info-btn{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1.5px solid #C0C0C0;color:#B0B0B0;font-size:10px;font-style:italic;font-family:Georgia,serif;flex-shrink:0}
+canvas{display:block}
+.diag-card{background:#EEF9F2;border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.diag-card:last-child{margin-bottom:0}
+.diag-row{display:flex;align-items:flex-start;gap:8px}
+.diag-dot{width:5px;height:5px;background:#1A1A1A;border-radius:50%;margin-top:9px;flex-shrink:0}
+.diag-text{font-size:14px;line-height:1.65;color:#1A1A1A}
+.diag-link{color:#007AFF}
+.bar-wrap{margin-top:12px}
+</style>
+</head>
+<body>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <div class="status-time">09:41</div>
+  <div class="status-right">
+    <svg width="18" height="11" viewBox="0 0 18 11" fill="#000"><rect x="0" y="7.5" width="3.5" height="3.5" rx="0.5"/><rect x="4.7" y="4.5" width="3.5" height="6.5" rx="0.5"/><rect x="9.4" y="1.5" width="3.5" height="9.5" rx="0.5"/><rect x="14.1" y="0" width="3.5" height="11" rx="0.5"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><circle cx="8" cy="11.2" r="1.2" fill="#000"/><path d="M5.1 8.1C5.9 7.3 6.9 6.9 8 6.9s2.1.4 2.9 1.2" stroke="#000" stroke-width="1.4" stroke-linecap="round"/><path d="M2.7 5.7C4.1 4.1 5.9 3.2 8 3.2s3.9.9 5.3 2.5" stroke="#000" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="0.6" y="0.6" width="21.8" height="10.8" rx="3.2" stroke="#000" stroke-opacity="0.35" stroke-width="1.2"/><rect x="22.4" y="3.5" width="2.8" height="5" rx="1.4" fill="#000" fill-opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#000"/></svg>
+  </div>
+</div>
+
+<!-- Nav Bar -->
+<div class="nav-bar">
+  <div class="nav-back">
+    <svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M8.5 1.5L1.5 9L8.5 16.5" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <span class="nav-title">充电实况</span>
+</div>
+
+<!-- 充电功率 -->
+<div class="section">
+  <div class="sec-row">
+    <span class="sec-title">充电功率</span>
+    <span class="info-btn">i</span>
+  </div>
+  <canvas id="powerChart" style="width:100%;height:220px"></canvas>
+</div>
+
+<!-- 充电诊断 -->
+<div class="section">
+  <div class="sec-row">
+    <span class="sec-title">充电诊断</span>
+  </div>
+  <div class="diag-card">
+    <div class="diag-row">
+      <div class="diag-dot"></div>
+      <div class="diag-text">初始温度过低，需求功率不足，建议提前开启预冷预热。<span class="diag-link">如何开启预冷预热，查看教程</span></div>
+    </div>
+  </div>
+  <div class="diag-card">
+    <div class="diag-row">
+      <div class="diag-dot"></div>
+      <div class="diag-text">多车充电，已优先为您分配功率。</div>
+    </div>
+    <div class="bar-wrap">
+      <canvas id="barChart" style="width:100%;height:200px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- 充电电流、充电电压 -->
+<div class="section" style="margin-bottom:24px">
+  <div class="sec-row">
+    <span class="sec-title">充电电流、充电电压</span>
+    <span class="info-btn">i</span>
+  </div>
+  <canvas id="currentChart" style="width:100%;height:220px"></canvas>
+</div>
+
+<script>
+const DPR = window.devicePixelRatio || 1;
+
+function setup(id, h) {
+  const el = document.getElementById(id);
+  const w = el.getBoundingClientRect().width;
+  el.width = Math.round(w * DPR);
+  el.height = Math.round(h * DPR);
+  const ctx = el.getContext('2d');
+  ctx.scale(DPR, DPR);
+  return { ctx, W: w, H: h };
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+/* ── 充电功率 ── */
+function drawPower() {
+  const { ctx, W, H } = setup('powerChart', 220);
+  const PL=40, PR=8, PT=26, PB=38;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const YMIN=100, YMAX=600;
+  const xL=['20%','30%','40%','50%','60%','70%','80%','90%','100%'];
+  const yT=[600,500,400,300,200,100];
+  const xp = i => PL + (i/(xL.length-1))*cW;
+  const yp = v => PT + ((YMAX-v)/(YMAX-YMIN))*cH;
+
+  // Grid
+  ctx.strokeStyle='#F0F0F0'; ctx.lineWidth=0.5;
+  yT.forEach(y=>{ ctx.beginPath(); ctx.moveTo(PL,yp(y)); ctx.lineTo(PL+cW,yp(y)); ctx.stroke(); });
+
+  // Y labels
+  ctx.fillStyle='#AAAAAA'; ctx.font='11px -apple-system,PingFang SC';
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  yT.forEach(y => ctx.fillText(y, PL-5, yp(y)));
+
+  // X labels
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  xL.forEach((lb,i) => ctx.fillText(lb, xp(i), PT+cH+5));
+
+  // Axis unit labels
+  ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText('kW', 0, 6);
+  ctx.textAlign='right'; ctx.fillText('soc电量（%）', W, PT+cH+19);
+
+  // Legend
+  const legs=[
+    {label:'桩端输出功率',color:'#3CC562'},
+    {label:'车辆需求功率',color:'#FF8C28'},
+    {label:'理想5c平均功率',color:'#C89550'},
+  ];
+  ctx.textBaseline='middle';
+  let lx = PL;
+  const ly = 13;
+  legs.forEach(l => {
+    ctx.beginPath(); ctx.arc(lx+4, ly, 4, 0, Math.PI*2);
+    ctx.fillStyle=l.color; ctx.fill();
+    lx += 10;
+    ctx.fillStyle='#555'; ctx.textAlign='left';
+    ctx.fillText(l.label, lx, ly);
+    lx += ctx.measureText(l.label).width + 10;
+  });
+
+  // Data
+  const powerD  = [422, 430, 432, 428, 424, 346, 346, 262, 260];
+  const demandD = [504, 490, 474, 454, 432, 384, 346, 284, 256];
+  const avgD    = [594, 580, 564, 545, 516, 488, 458, 428, 396];
+
+  // Fill under power line
+  ctx.beginPath();
+  powerD.forEach((v,i) => i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)));
+  ctx.lineTo(xp(powerD.length-1), PT+cH);
+  ctx.lineTo(xp(0), PT+cH);
+  ctx.closePath();
+  const fg = ctx.createLinearGradient(0, PT, 0, PT+cH);
+  fg.addColorStop(0,'rgba(60,197,98,0.22)'); fg.addColorStop(1,'rgba(60,197,98,0.03)');
+  ctx.fillStyle=fg; ctx.fill();
+
+  function line(data, color, lw) {
+    ctx.beginPath();
+    data.forEach((v,i) => i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)));
+    ctx.strokeStyle=color; ctx.lineWidth=lw;
+    ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+  }
+  line(avgD,    '#C89550', 1.8);
+  line(demandD, '#FF8C28', 1.8);
+  line(powerD,  '#3CC562', 2);
+}
+
+/* ── 充电枪功率分配柱状图 ── */
+function drawBar() {
+  const { ctx, W, H } = setup('barChart', 200);
+  const PL=34, PR=4, PT=38, PB=26;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const YMAX=400;
+
+  const data = [400, 270, 252, 358, 234, 148];
+  const guns = ['1号枪','2号枪','3号枪','4号枪','5号枪','6号枪'];
+  const cars = ['',    '理想i8','比亚迪','理想i6','小鹏','未知'];
+  const yT   = [400, 300, 200, 100];
+
+  const n=data.length, slotW=cW/n, barW=slotW*0.52;
+  const bx = i => PL + slotW*i + (slotW-barW)/2;
+  const yp = v => PT + ((YMAX-v)/YMAX)*cH;
+
+  // Grid
+  ctx.strokeStyle='#E8E8E8'; ctx.lineWidth=0.5;
+  yT.forEach(y=>{ ctx.beginPath(); ctx.moveTo(PL,yp(y)); ctx.lineTo(PL+cW,yp(y)); ctx.stroke(); });
+
+  // Y labels
+  ctx.fillStyle='#BBBBBB'; ctx.font='10px -apple-system,PingFang SC';
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  yT.forEach(y => ctx.fillText(y, PL-4, yp(y)));
+
+  data.forEach((v, i) => {
+    const x=bx(i), cx=x+barW/2;
+    const barH=(v/YMAX)*cH, top=PT+cH-barH;
+
+    // Bar
+    roundRect(ctx, x, top, barW, barH, 3);
+    if (i===0) {
+      const g=ctx.createLinearGradient(0,top,0,PT+cH);
+      g.addColorStop(0,'#6ADE88'); g.addColorStop(1,'#1A9A50');
+      ctx.fillStyle=g;
+    } else {
+      ctx.fillStyle='#D8D8D8';
+    }
+    ctx.fill();
+
+    // Tag / car label above bar
+    ctx.font='11px -apple-system,PingFang SC';
+    if (i===0) {
+      const tag='我正在充';
+      const tw=ctx.measureText(tag).width+12, th=17;
+      const tx=cx-tw/2, ty=top-th-5;
+      roundRect(ctx, tx, ty, tw, th, 3);
+      const tg=ctx.createLinearGradient(tx,ty,tx+tw,ty);
+      tg.addColorStop(0,'#3CC562'); tg.addColorStop(1,'#1A8A44');
+      ctx.fillStyle=tg; ctx.fill();
+      ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.font='bold 10px -apple-system,PingFang SC';
+      ctx.fillText(tag, cx, ty+th/2);
+    } else if (cars[i]) {
+      ctx.fillStyle='#888'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.font='11px -apple-system,PingFang SC';
+      ctx.fillText(cars[i], cx, top-4);
+    }
+
+    // Gun label below
+    ctx.fillStyle='#AAAAAA'; ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.font='11px -apple-system,PingFang SC';
+    ctx.fillText(guns[i], cx, PT+cH+6);
+  });
+}
+
+/* ── 充电电流、充电电压 ── */
+function drawCurrent() {
+  const { ctx, W, H } = setup('currentChart', 220);
+  const PL=40, PR=8, PT=26, PB=38;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const YMIN=100, YMAX=600;
+  const xL=['20%','30%','40%','50%','60%','70%','80%','90%','100%'];
+  const yT=[600,500,400,300,200,100];
+  const xp = i => PL + (i/(xL.length-1))*cW;
+  const yp = v => PT + ((YMAX-v)/(YMAX-YMIN))*cH;
+
+  // Grid
+  ctx.strokeStyle='#F0F0F0'; ctx.lineWidth=0.5;
+  yT.forEach(y=>{ ctx.beginPath(); ctx.moveTo(PL,yp(y)); ctx.lineTo(PL+cW,yp(y)); ctx.stroke(); });
+
+  // Y labels
+  ctx.fillStyle='#AAAAAA'; ctx.font='11px -apple-system,PingFang SC';
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  yT.forEach(y => ctx.fillText(y, PL-5, yp(y)));
+
+  // X labels
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  xL.forEach((lb,i) => ctx.fillText(lb, xp(i), PT+cH+5));
+
+  ctx.textAlign='left';  ctx.textBaseline='top'; ctx.fillText('A/V', 0, 6);
+  ctx.textAlign='right'; ctx.fillText('soc电量（%）', W, PT+cH+19);
+
+  // Legend (right-aligned: ● label  ● label)
+  const legs=[{label:'充电电流',color:'#FFBA08'},{label:'充电电压',color:'#4A87F0'}];
+  ctx.font='11px -apple-system,PingFang SC'; ctx.textBaseline='middle';
+  const ly=13;
+  let lx=W;
+  for (let i=legs.length-1; i>=0; i--) {
+    const tw=ctx.measureText(legs[i].label).width;
+    lx -= tw;
+    ctx.fillStyle='#555'; ctx.textAlign='left'; ctx.fillText(legs[i].label, lx, ly);
+    lx -= 10;
+    ctx.beginPath(); ctx.arc(lx, ly, 4, 0, Math.PI*2);
+    ctx.fillStyle=legs[i].color; ctx.fill();
+    lx -= 14;
+  }
+
+  const currentD=[372,344,326,313,298,215,215,137,122];
+  const voltageD=[530,535,540,545,553,565,572,576,580];
+
+  function line(data,color,lw){
+    ctx.beginPath();
+    data.forEach((v,i) => i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)));
+    ctx.strokeStyle=color; ctx.lineWidth=lw;
+    ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+  }
+  line(voltageD,'#4A87F0',1.8);
+  line(currentD,'#FFBA08',1.8);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  drawPower();
+  drawBar();
+  drawCurrent();
+});
+</script>
+</body>
+</html>
