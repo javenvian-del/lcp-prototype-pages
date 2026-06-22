@@ -47,15 +47,6 @@ canvas{display:block}
   <span class="nav-title">充电实况</span>
 </div>
 
-<!-- 充电功率 -->
-<div class="section">
-  <div class="sec-row">
-    <span class="sec-title">充电功率</span>
-    <span class="info-btn">i</span>
-  </div>
-  <canvas id="powerChart" style="width:100%;height:220px"></canvas>
-</div>
-
 <!-- 充电诊断 -->
 <div class="section">
   <div class="sec-row">
@@ -76,6 +67,15 @@ canvas{display:block}
       <canvas id="barChart" style="width:100%;height:200px"></canvas>
     </div>
   </div>
+</div>
+
+<!-- 充电功率 -->
+<div class="section">
+  <div class="sec-row">
+    <span class="sec-title">充电功率</span>
+    <span class="info-btn">i</span>
+  </div>
+  <canvas id="powerChart" style="width:100%;height:220px"></canvas>
 </div>
 
 <!-- 充电电流、充电电压 -->
@@ -142,8 +142,7 @@ function drawPower() {
 
   // Legend
   const legs=[
-    {label:'桩端输出功率',color:'#3CC562'},
-    {label:'车辆需求功率',color:'#FF8C28'},
+    {label:'充电功率',color:'#3CC562'},
     {label:'理想5c平均功率',color:'#C89550'},
   ];
   ctx.textBaseline='middle';
@@ -160,7 +159,6 @@ function drawPower() {
 
   // Data
   const powerD  = [422, 430, 432, 428, 424, 346, 346, 262, 260];
-  const demandD = [504, 490, 474, 454, 432, 384, 346, 284, 256];
   const avgD    = [594, 580, 564, 545, 516, 488, 458, 428, 396];
 
   // Fill under power line
@@ -180,7 +178,6 @@ function drawPower() {
     ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
   }
   line(avgD,    '#C89550', 1.8);
-  line(demandD, '#FF8C28', 1.8);
   line(powerD,  '#3CC562', 2);
 }
 
@@ -277,32 +274,36 @@ function drawCurrent() {
   ctx.textAlign='left';  ctx.textBaseline='top'; ctx.fillText('A/V', 0, 6);
   ctx.textAlign='right'; ctx.fillText('soc电量（%）', W, PT+cH+19);
 
-  // Legend (right-aligned: ● label  ● label)
-  const legs=[{label:'充电电流',color:'#FFBA08'},{label:'充电电压',color:'#4A87F0'}];
+  // Legend (left-aligned)
+  const legs=[{label:'充电电流',color:'#FFBA08'},{label:'需求电流',color:'#FF8C28'},{label:'充电电压',color:'#4A87F0'}];
   ctx.font='11px -apple-system,PingFang SC'; ctx.textBaseline='middle';
   const ly=13;
-  let lx=W;
-  for (let i=legs.length-1; i>=0; i--) {
-    const tw=ctx.measureText(legs[i].label).width;
-    lx -= tw;
-    ctx.fillStyle='#555'; ctx.textAlign='left'; ctx.fillText(legs[i].label, lx, ly);
-    lx -= 10;
-    ctx.beginPath(); ctx.arc(lx, ly, 4, 0, Math.PI*2);
-    ctx.fillStyle=legs[i].color; ctx.fill();
-    lx -= 14;
-  }
+  let lx=PL;
+  legs.forEach(l => {
+    ctx.beginPath(); ctx.arc(lx+4, ly, 4, 0, Math.PI*2);
+    ctx.fillStyle=l.color; ctx.fill();
+    lx += 10;
+    ctx.fillStyle='#555'; ctx.textAlign='left';
+    ctx.fillText(l.label, lx, ly);
+    lx += ctx.measureText(l.label).width + 10;
+  });
 
   const currentD=[372,344,326,313,298,215,215,137,122];
+  const demandD =[420,398,378,355,336,268,250,178,155];
   const voltageD=[530,535,540,545,553,565,572,576,580];
 
-  function line(data,color,lw){
+  function line(data,color,lw,dash){
     ctx.beginPath();
     data.forEach((v,i) => i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)));
     ctx.strokeStyle=color; ctx.lineWidth=lw;
-    ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    if(dash) ctx.setLineDash(dash); else ctx.setLineDash([]);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
   line(voltageD,'#4A87F0',1.8);
   line(currentD,'#FFBA08',1.8);
+  line(demandD, '#FF8C28',1.8);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
