@@ -904,22 +904,27 @@
           SKU 配置
         </div>
 
-        <!-- 车主连续包月 SKU -->
-        <div class="form-row">
-          <div class="form-label">
-            <span class="required">*</span>车主连续包月 SKU
-            <span class="hint">理想车主·自动续费</span>
+        <!-- 车主连续包月 SKU（一期暂不做，保留备用） -->
+        <div style="position:relative">
+          <div class="form-row" style="opacity:0.38;pointer-events:none;user-select:none">
+            <div class="form-label" style="text-decoration:line-through">
+              <span class="required">*</span>车主连续包月 SKU
+              <span class="hint">理想车主·自动续费</span>
+            </div>
+            <div class="form-content">
+              <div class="id-view-row" id="sku-owner-monthly-view">
+                <span class="id-display" id="sku-owner-monthly-display" style="text-decoration:line-through">SKU_OWNER_MONTHLY_001</span>
+                <button class="btn btn-default btn-sm" onclick="startSkuEdit('owner-monthly')">编辑</button>
+              </div>
+              <div class="id-edit-row hidden" id="sku-owner-monthly-edit">
+                <input class="form-control" id="sku-owner-monthly-input" style="width:280px" placeholder="请输入 SKU ID">
+                <button class="btn btn-default" onclick="cancelSkuEdit('owner-monthly')">取消</button>
+                <button class="btn btn-primary" onclick="saveSkuEdit('owner-monthly')">立即保存</button>
+              </div>
+            </div>
           </div>
-          <div class="form-content">
-            <div class="id-view-row" id="sku-owner-monthly-view">
-              <span class="id-display" id="sku-owner-monthly-display">SKU_OWNER_MONTHLY_001</span>
-              <button class="btn btn-default btn-sm" onclick="startSkuEdit('owner-monthly')">编辑</button>
-            </div>
-            <div class="id-edit-row hidden" id="sku-owner-monthly-edit">
-              <input class="form-control" id="sku-owner-monthly-input" style="width:280px" placeholder="请输入 SKU ID">
-              <button class="btn btn-default" onclick="cancelSkuEdit('owner-monthly')">取消</button>
-              <button class="btn btn-primary" onclick="saveSkuEdit('owner-monthly')">立即保存</button>
-            </div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;pointer-events:none">
+            <span style="background:#F5A623;color:#fff;font-size:11px;padding:3px 10px;border-radius:3px;font-weight:500;letter-spacing:0.3px">一期暂不做</span>
           </div>
         </div>
 
@@ -944,22 +949,27 @@
 
         <hr class="form-divider">
 
-        <!-- 非车主连续包月 SKU -->
-        <div class="form-row">
-          <div class="form-label">
-            <span class="required">*</span>非车主连续包月 SKU
-            <span class="hint">三方用户·自动续费</span>
+        <!-- 非车主连续包月 SKU（一期暂不做，保留备用） -->
+        <div style="position:relative">
+          <div class="form-row" style="opacity:0.38;pointer-events:none;user-select:none">
+            <div class="form-label" style="text-decoration:line-through">
+              <span class="required">*</span>非车主连续包月 SKU
+              <span class="hint">三方用户·自动续费</span>
+            </div>
+            <div class="form-content">
+              <div class="id-view-row" id="sku-third-monthly-view">
+                <span class="id-display" id="sku-third-monthly-display" style="text-decoration:line-through">SKU_THIRD_MONTHLY_001</span>
+                <button class="btn btn-default btn-sm" onclick="startSkuEdit('third-monthly')">编辑</button>
+              </div>
+              <div class="id-edit-row hidden" id="sku-third-monthly-edit">
+                <input class="form-control" id="sku-third-monthly-input" style="width:280px" placeholder="请输入 SKU ID">
+                <button class="btn btn-default" onclick="cancelSkuEdit('third-monthly')">取消</button>
+                <button class="btn btn-primary" onclick="saveSkuEdit('third-monthly')">立即保存</button>
+              </div>
+            </div>
           </div>
-          <div class="form-content">
-            <div class="id-view-row" id="sku-third-monthly-view">
-              <span class="id-display" id="sku-third-monthly-display">SKU_THIRD_MONTHLY_001</span>
-              <button class="btn btn-default btn-sm" onclick="startSkuEdit('third-monthly')">编辑</button>
-            </div>
-            <div class="id-edit-row hidden" id="sku-third-monthly-edit">
-              <input class="form-control" id="sku-third-monthly-input" style="width:280px" placeholder="请输入 SKU ID">
-              <button class="btn btn-default" onclick="cancelSkuEdit('third-monthly')">取消</button>
-              <button class="btn btn-primary" onclick="saveSkuEdit('third-monthly')">立即保存</button>
-            </div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;pointer-events:none">
+            <span style="background:#F5A623;color:#fff;font-size:11px;padding:3px 10px;border-radius:3px;font-weight:500;letter-spacing:0.3px">一期暂不做</span>
           </div>
         </div>
 
