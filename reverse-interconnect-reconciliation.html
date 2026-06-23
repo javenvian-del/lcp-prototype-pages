@@ -162,8 +162,8 @@ select.filter-control{appearance:none;-webkit-appearance:none;background-image:u
 
     <!-- TABS -->
     <div class="mode-tabs">
-      <div class="mode-tab active" id="tab-trade" onclick="switchMode('trade')">贸易模式</div>
-      <div class="mode-tab" id="tab-platform" onclick="switchMode('platform')">平台模式</div>
+      <div class="mode-tab active" id="tab-trade" onclick="switchMode('trade')">通用账单</div>
+      <div class="mode-tab" id="tab-platform" onclick="switchMode('platform')">高德账单</div>
     </div>
 
     <!-- 贸易模式筛选 -->
@@ -215,12 +215,8 @@ select.filter-control{appearance:none;-webkit-appearance:none;background-image:u
           </select>
         </div>
         <div class="filter-field">
-          <span class="filter-label">起止日期：</span>
-          <div class="date-range">
-            <input type="date" class="filter-control" value="2026-06-01" style="width:140px">
-            <span class="date-sep">~</span>
-            <input type="date" class="filter-control" value="2026-06-30" style="width:140px">
-          </div>
+          <span class="filter-label">日期：</span>
+          <input type="date" class="filter-control" value="2026-06-01" style="width:140px">
         </div>
         <div class="filter-field">
           <span class="filter-label">结算状态：</span>
@@ -437,7 +433,7 @@ function showToast(msg) {
 }
 
 // 初始化渲染
-buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', false), tradeRows);
+buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', true),  tradeRows);
 buildTable('thead-platform', 'tbody-platform', buildCols('起止日期', true),  platformRows);
 </script>
 </body>
