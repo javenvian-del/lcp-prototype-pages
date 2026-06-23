@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>财务配置</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* ===== 弹窗 ===== */
+    .modal {
+      background: #fff;
+      border-radius: 4px;
+      width: 900px;
+      max-height: 90vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    }
+
+    /* 弹窗头部 */
+    .modal-header {
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .modal-title { font-size: 15px; font-weight: 600; color: #222; }
+    .modal-close {
+      width: 24px; height: 24px; border: none; background: none;
+      cursor: pointer; font-size: 18px; color: #aaa;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 3px; transition: background 0.12s;
+    }
+    .modal-close:hover { background: #f5f5f5; color: #555; }
+
+    /* 弹窗主体 */
+    .modal-body {
+      flex: 1; overflow-y: auto; padding: 24px 28px 12px;
+    }
+    .modal-body::-webkit-scrollbar { width: 5px; }
+    .modal-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    /* 表单行 */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 32px;
+      margin-bottom: 20px;
+    }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+    .form-item { display: flex; align-items: center; gap: 0; }
+    .form-label {
+      width: 120px; min-width: 120px;
+      font-size: 13px; color: #555;
+      text-align: right; padding-right: 10px;
+      flex-shrink: 0; line-height: 1.4;
+    }
+    .form-label .required { color: #D93025; margin-right: 2px; }
+    .form-content { flex: 1; min-width: 0; }
+
+    /* 输入框 */
+    .form-control {
+      width: 100%; height: 32px;
+      border: 1px solid #d9d9d9; border-radius: 4px;
+      padding: 0 10px; font-size: 13px; color: #333;
+      outline: none; background: #fff;
+      transition: border-color 0.15s; font-family: inherit;
+    }
+    .form-control:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+    .form-control::placeholder { color: #bbb; }
+
+    /* 下拉 */
+    select.form-control {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      padding-right: 28px; cursor: pointer; color: #bbb;
+    }
+    select.form-control.selected { color: #333; }
+
+    /* 数字步进器 */
+    .stepper-wrap { display: flex; align-items: center; }
+    .stepper-btn {
+      width: 32px; height: 32px; border: 1px solid #d9d9d9;
+      background: #fafafa; cursor: pointer;
+      font-size: 18px; color: #555; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.12s; user-select: none;
+    }
+    .stepper-btn:first-child { border-radius: 4px 0 0 4px; border-right: none; }
+    .stepper-btn:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
+    .stepper-btn:hover { background: #EAF7F4; color: #0B7B6B; }
+    .stepper-input {
+      flex: 1; height: 32px; border: 1px solid #d9d9d9;
+      text-align: center; font-size: 13px; color: #333;
+      outline: none; font-family: inherit;
+    }
+
+    /* 分区标题 */
+    .section-title {
+      font-size: 13px; font-weight: 600; color: #333;
+      margin: 4px 0 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title-dot {
+      width: 3px; height: 13px; background: #0B7B6B; border-radius: 2px;
+    }
+
+    /* ===== 出账周期 单选组 ===== */
+    .billing-cycle-group {
+      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    }
+    .radio-option {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #333; cursor: pointer; user-select: none;
+    }
+    .radio-option input[type="radio"] {
+      accent-color: #0B7B6B;
+      width: 14px; height: 14px; cursor: pointer; flex-shrink: 0;
+    }
+    /* T+N天 内联输入 */
+    .t-plus-input {
+      width: 52px; height: 28px;
+      border: 1px solid #d9d9d9; border-radius: 4px;
+      padding: 0 8px; font-size: 13px; color: #333;
+      outline: none; text-align: center; font-family: inherit;
+      transition: border-color 0.15s;
+      margin: 0 2px;
+    }
+    .t-plus-input:focus { border-color: #0B7B6B; }
+    .t-plus-input:disabled {
+      background: #f5f5f5; color: #bbb; border-color: #e8e8e8; cursor: not-allowed;
+    }
+    .radio-option.disabled { color: #bbb; cursor: not-allowed; }
+
+    /* 弹窗底部 */
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+      flex-shrink: 0;
+    }
+    .btn {
+      height: 32px; padding: 0 20px; border-radius: 4px;
+      font-size: 13px; cursor: pointer; font-family: inherit;
+      display: inline-flex; align-items: center; border: none;
+    }
+    .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #555; }
+    .btn-default:hover { border-color: #0B7B6B; color: #0B7B6B; }
+    .btn-primary { background: #1677ff; color: #fff; }
+    .btn-primary:hover { background: #0e6ae0; }
+  </style>
+</head>
+<body>
+
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">财务配置</div>
+    <button class="modal-close">×</button>
+  </div>
+
+  <div class="modal-body">
+
+    <!-- 基础信息 -->
+    <div class="form-row">
+      <div class="form-item">
+        <div class="form-label"><span class="required">*</span>大客户ID：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+      <div class="form-item">
+        <div class="form-label"><span class="required">*</span>大客户名称：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item">
+        <div class="form-label">开票来源：</div>
+        <div class="form-content">
+          <select class="form-control"><option value="">请选择</option></select>
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="form-label">发票类型：</div>
+        <div class="form-content">
+          <select class="form-control"><option value="">请选择</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item">
+        <div class="form-label">发票抬头类型：</div>
+        <div class="form-content">
+          <select class="form-control"><option value="">请选择</option></select>
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="form-label">发票抬头：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item">
+        <div class="form-label">邮箱：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+      <div class="form-item">
+        <div class="form-label">税号：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item">
+        <div class="form-label">开户行名称：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+      <div class="form-item">
+        <div class="form-label">银行账号：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item">
+        <div class="form-label">注册地址：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+      <div class="form-item">
+        <div class="form-label">注册电话：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item">
+        <div class="form-label">开票公司编码：</div>
+        <div class="form-content"><input class="form-control" type="text"></div>
+      </div>
+      <div class="form-item">
+        <div class="form-label">开票公司名称：</div>
+        <div class="form-content">
+          <select class="form-control"><option value="">请选择</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 抽成比例 -->
+    <div class="form-row">
+      <div class="form-item" style="align-items:flex-start">
+        <div class="form-label" style="padding-top:6px"><span class="required">*</span>反向平台服务费抽成比例(%)：</div>
+        <div class="form-content">
+          <div class="stepper-wrap">
+            <button class="stepper-btn" onclick="stepChange('svc',-1)">−</button>
+            <input class="stepper-input" id="svc" value="0" type="number" min="0">
+            <button class="stepper-btn" onclick="stepChange('svc',1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-item" style="align-items:flex-start">
+        <div class="form-label" style="padding-top:6px"><span class="required">*</span>反向平台占用费抽成比例(%)：</div>
+        <div class="form-content">
+          <div class="stepper-wrap">
+            <button class="stepper-btn" onclick="stepChange('occ',-1)">−</button>
+            <input class="stepper-input" id="occ" value="0" type="number" min="0">
+            <button class="stepper-btn" onclick="stepChange('occ',1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item" style="align-items:flex-start">
+        <div class="form-label" style="padding-top:6px"><span class="required">*</span>反向平台电费抽成比例(%)：</div>
+        <div class="form-content">
+          <div class="stepper-wrap">
+            <button class="stepper-btn" onclick="stepChange('elec',-1)">−</button>
+            <input class="stepper-input" id="elec" value="0" type="number" min="0">
+            <button class="stepper-btn" onclick="stepChange('elec',1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-item" style="align-items:flex-start">
+        <div class="form-label" style="padding-top:6px">反向平台手续费比例(%)：</div>
+        <div class="form-content">
+          <input class="form-control" type="number" min="0" placeholder="请输入" style="width:200px">
+        </div>
+      </div>
+    </div>
+
+    <!-- 出账周期配置 -->
+    <div class="section-title">
+      <div class="section-title-dot"></div>
+      出账周期配置
+    </div>
+
+    <div class="form-row single">
+      <div class="form-item" style="align-items:center">
+        <div class="form-label"><span class="required">*</span>出账周期：</div>
+        <div class="form-content">
+          <div class="billing-cycle-group" id="billing-group">
+
+            <!-- T+N天 -->
+            <label class="radio-option" onclick="selectCycle('tplus')">
+              <input type="radio" name="billing" id="radio-tplus">
+              天
+            </label>
+
+            <!-- 月度 -->
+            <label class="radio-option" onclick="selectCycle('monthly')">
+              <input type="radio" name="billing" id="radio-monthly">
+              月度
+            </label>
+
+            <!-- 季度 -->
+            <label class="radio-option" onclick="selectCycle('quarterly')">
+              <input type="radio" name="billing" id="radio-quarterly">
+              季度
+            </label>
+
+            <!-- 年度 -->
+            <label class="radio-option" onclick="selectCycle('yearly')">
+              <input type="radio" name="billing" id="radio-yearly" checked>
+              年度
+            </label>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 下次出账日期（季度/年度时显示） -->
+    <div class="form-row single" id="next-billing-row">
+      <div class="form-item" style="align-items:flex-start">
+        <div class="form-label" style="padding-top:6px"><span class="required">*</span>下次出账日期（选择月份的1号）：</div>
+        <div class="form-content">
+          <select class="form-control" id="next-billing-month" style="width:200px;color:#333">
+            <option value="">请选择月份</option>
+            <option value="1">1月</option>
+            <option value="2">2月</option>
+            <option value="3">3月</option>
+            <option value="4">4月</option>
+            <option value="5">5月</option>
+            <option value="6">6月</option>
+            <option value="7">7月</option>
+            <option value="8">8月</option>
+            <option value="9">9月</option>
+            <option value="10">10月</option>
+            <option value="11">11月</option>
+            <option value="12">12月</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /modal-body -->
+
+  <div class="modal-footer">
+    <button class="btn btn-default">取 消</button>
+    <button class="btn btn-primary">确 定</button>
+  </div>
+</div>
+
+<script>
+  function stepChange(id, delta) {
+    const el = document.getElementById(id);
+    el.value = Math.max(0, (parseInt(el.value) || 0) + delta);
+  }
+
+  function selectCycle(key) {
+    const map = { tplus: 'radio-tplus', monthly: 'radio-monthly', quarterly: 'radio-quarterly', yearly: 'radio-yearly' };
+    document.getElementById(map[key]).checked = true;
+    // 下次出账日期：仅季度/年度时显示
+    const nextRow = document.getElementById('next-billing-row');
+    nextRow.style.display = (key === 'quarterly' || key === 'yearly') ? '' : 'none';
+  }
+
+  // select 选中后字色变深
+  document.querySelectorAll('select.form-control').forEach(function(sel) {
+    sel.addEventListener('change', function() {
+      this.classList.toggle('selected', this.value !== '');
+    });
+  });
+
+  // 初始状态：年度已选中，显示下次出账日期行
+  document.getElementById('next-billing-row').style.display = '';
+
+  function clampDays(el) {
+    const v = parseInt(el.value);
+    if (v < 1)  el.value = 1;
+    if (v > 30) el.value = 30;
+  }
+</script>
+</body>
+</html>
