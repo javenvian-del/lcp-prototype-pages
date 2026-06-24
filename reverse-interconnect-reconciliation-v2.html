@@ -431,7 +431,7 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
 
 <script>
 // ======= 列定义（无补贴列）=======
-function buildCols(dateLabel, withFee) {
+function buildCols(dateLabel, withFee, withInvoice) {
   const base = [
     { key:'id',               label:'对账单号',         w:160, stickyL:'40px', mono:true },
     { key:'platform',         label:'反向互联平台商',    w:190 },
@@ -457,10 +457,14 @@ function buildCols(dateLabel, withFee) {
     { key:'status',           label:'状态',              w:80,  badge:'status' },
     { key:'payStatus',        label:'支付状态',          w:90,  badge:'pay' },
     { key:'payTime',          label:'认款完成时间',      w:150, muted:true },
+  );
+  if (withInvoice !== false) base.push(
     { key:'invoiceStatus',    label:'开票状态',          w:80,  badge:'invoice' },
     { key:'invoiceApplicant', label:'开票申请人',        w:90 },
     { key:'invoiceApplyTime', label:'开票申请时间',      w:150, muted:true },
     { key:'invoiceTime',      label:'开票完成时间',      w:150, muted:true },
+  );
+  base.push(
     { key:'settleApplicant',  label:'结算申请人',        w:90 },
     { key:'settleApplyTime',  label:'结算申请时间',      w:150, muted:true },
     { key:'ops',              label:'操作',              w:130, op:true },
@@ -553,8 +557,8 @@ const tradeRows = [
 
 // ======= 高德账单数据 =======
 const platformRows = [
-  { id:'GD20260601001', platform:'高德地图', date:'2026-06-01', chargeOrders:1823, parkOrders:5,  kwh:'48234.56',  total:'89231.44',  elec:'52341.22', svc:'36480.22', park:'410.00', fee:'1820.00', adjElec:'52341.22', adjSvc:'36480.22', adjPark:'410.00', adjFee:'1820.00', receivable:'89231.44',  adjReason:'—',        status:'已生成', payStatus:'已支付', payTime:'2026-06-03 10:00', invoiceStatus:'已开票', invoiceApplicant:'张三', invoiceApplyTime:'2026-06-03 11:00', invoiceTime:'2026-06-04 14:00', settleApplicant:'李四', settleApplyTime:'2026-06-05 09:00', ops:['导出','查看发票','更多'] },
-  { id:'GD20260602001', platform:'高德地图', date:'2026-06-02', chargeOrders:1756, parkOrders:3,  kwh:'46812.33',  total:'86544.18',  elec:'50832.10', svc:'35412.08', park:'300.00', fee:'1756.00', adjElec:'50832.10', adjSvc:'35412.08', adjPark:'300.00', adjFee:'1756.00', receivable:'86544.18',  adjReason:'—',        status:'已生成', payStatus:'已支付', payTime:'2026-06-04 10:00', invoiceStatus:'开票中', invoiceApplicant:'王五', invoiceApplyTime:'2026-06-04 11:00', invoiceTime:'—', settleApplicant:'赵六', settleApplyTime:'2026-06-06 09:00', ops:['导出','更多'] },
+  { id:'GD20260601001', platform:'高德地图', date:'2026-06-01', chargeOrders:1823, parkOrders:5,  kwh:'48234.56',  total:'89231.44',  elec:'52341.22', svc:'36480.22', park:'410.00', fee:'1820.00', adjElec:'52341.22', adjSvc:'36480.22', adjPark:'410.00', adjFee:'1820.00', receivable:'89231.44',  adjReason:'—',        status:'已生成', payStatus:'已支付', payTime:'2026-06-03 10:00', settleApplicant:'李四', settleApplyTime:'2026-06-05 09:00', ops:['导出','更多'] },
+  { id:'GD20260602001', platform:'高德地图', date:'2026-06-02', chargeOrders:1756, parkOrders:3,  kwh:'46812.33',  total:'86544.18',  elec:'50832.10', svc:'35412.08', park:'300.00', fee:'1756.00', adjElec:'50832.10', adjSvc:'35412.08', adjPark:'300.00', adjFee:'1756.00', receivable:'86544.18',  adjReason:'—',        status:'已生成', payStatus:'已支付', payTime:'2026-06-04 10:00', settleApplicant:'赵六', settleApplyTime:'2026-06-06 09:00', ops:['导出','更多'] },
   { id:'GD20260603001', platform:'高德地图', date:'2026-06-03', chargeOrders:1902, parkOrders:8,  kwh:'50123.78',  total:'92316.55',  elec:'54210.30', svc:'37286.25', park:'820.00', fee:'1902.00', adjElec:'54210.30', adjSvc:'37286.25', adjPark:'820.00', adjFee:'1902.00', receivable:'92316.55',  adjReason:'—',        status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
   { id:'GD20260604001', platform:'高德地图', date:'2026-06-04', chargeOrders:2104, parkOrders:12, kwh:'55436.20',  total:'101832.76', elec:'59823.44', svc:'41388.32', park:'621.00', fee:'2104.00', adjElec:'59823.44', adjSvc:'41388.32', adjPark:'621.00', adjFee:'2104.00', receivable:'101832.76', adjReason:'—',        status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
   { id:'GD20260605001', platform:'高德地图', date:'2026-06-05', chargeOrders:1644, parkOrders:2,  kwh:'43298.11',  total:'80112.39',  elec:'47234.15', svc:'32678.24', park:'200.00', fee:'1644.00', adjElec:'47234.15', adjSvc:'32678.24', adjPark:'200.00', adjFee:'1644.00', receivable:'80112.39',  adjReason:'—',        status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
@@ -605,8 +609,8 @@ function showToast(msg) {
 }
 
 // ======= 初始化渲染 =======
-buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', true), tradeRows);
-buildTable('thead-platform', 'tbody-platform', buildCols('账单日期', true), platformRows);
+buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', true, true),  tradeRows);
+buildTable('thead-platform', 'tbody-platform', buildCols('账单日期', true, false), platformRows);
 buildTable('thead-subsidy',  'tbody-subsidy',  subsidyCols,                 subsidyRows);
 </script>
 </body>
