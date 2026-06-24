@@ -348,23 +348,27 @@
     <!-- 下次出账日期（季度/年度时显示） -->
     <div class="form-row single" id="next-billing-row">
       <div class="form-item" style="align-items:flex-start">
-        <div class="form-label" style="padding-top:6px"><span class="required">*</span>下次出账日期（选择月份的1号）：</div>
+        <div class="form-label" style="padding-top:6px"><span class="required">*</span>下次出账日期（选择年月的1号）：</div>
         <div class="form-content">
-          <select class="form-control" id="next-billing-month" style="width:200px;color:#333">
-            <option value="">请选择月份</option>
-            <option value="1">1月</option>
-            <option value="2">2月</option>
-            <option value="3">3月</option>
-            <option value="4">4月</option>
-            <option value="5">5月</option>
-            <option value="6">6月</option>
-            <option value="7">7月</option>
-            <option value="8">8月</option>
-            <option value="9">9月</option>
-            <option value="10">10月</option>
-            <option value="11">11月</option>
-            <option value="12">12月</option>
-          </select>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="form-control selected" id="next-billing-year" style="width:110px;color:#333" onchange="this.classList.toggle('selected',this.value!='')">
+            </select>
+            <select class="form-control" id="next-billing-month" style="width:100px;color:#bbb" onchange="this.classList.toggle('selected',this.value!='')">
+              <option value="">请选择月份</option>
+              <option value="1">1月</option>
+              <option value="2">2月</option>
+              <option value="3">3月</option>
+              <option value="4">4月</option>
+              <option value="5">5月</option>
+              <option value="6">6月</option>
+              <option value="7">7月</option>
+              <option value="8">8月</option>
+              <option value="9">9月</option>
+              <option value="10">10月</option>
+              <option value="11">11月</option>
+              <option value="12">12月</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
@@ -397,6 +401,18 @@
       this.classList.toggle('selected', this.value !== '');
     });
   });
+
+  // 初始化年份选项（当前年 +5 年）
+  (function initYears() {
+    const sel = document.getElementById('next-billing-year');
+    const cur = new Date().getFullYear();
+    let opt = '<option value="">请选择年份</option>';
+    for (let y = cur; y <= cur + 5; y++) {
+      opt += `<option value="${y}"${y === cur ? ' selected' : ''}>${y}年</option>`;
+    }
+    sel.innerHTML = opt;
+    sel.classList.toggle('selected', sel.value !== '');
+  })();
 
   // 初始状态：年度已选中，显示下次出账日期行
   document.getElementById('next-billing-row').style.display = '';
