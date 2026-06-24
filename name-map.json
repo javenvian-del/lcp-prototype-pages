@@ -8,5 +8,6 @@
   "反向互联对账.html":               "reverse-interconnect-reconciliation.html",
   "绑车牌-特殊车牌及位数提醒.html":   "bind-license-plate-special.html",
   "C端_充电实况.html":                 "charging-status.html",
-  "B端_财务配置弹窗.html":              "finance-config-modal.html"
+  "B端_财务配置弹窗.html":              "finance-config-modal.html",
+  "反向互联对账_v2.html":               "reverse-interconnect-reconciliation-v2.html"
 }
