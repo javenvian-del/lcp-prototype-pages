@@ -609,7 +609,7 @@ function showToast(msg) {
 }
 
 // ======= 初始化渲染 =======
-buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', true, true),  tradeRows);
+buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', false, true),  tradeRows);
 buildTable('thead-platform', 'tbody-platform', buildCols('账单日期', true, false), platformRows);
 buildTable('thead-subsidy',  'tbody-subsidy',  subsidyCols,                 subsidyRows);
 </script>
