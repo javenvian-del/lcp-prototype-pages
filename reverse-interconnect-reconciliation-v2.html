@@ -272,11 +272,11 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
           </select>
         </div>
         <div class="filter-field">
-          <span class="filter-label">认款状态：</span>
+          <span class="filter-label">支付状态：</span>
           <select class="filter-control" style="width:120px">
             <option value="">全部</option>
-            <option>认款中</option>
-            <option>认款完成</option>
+            <option>已支付</option>
+            <option>未支付</option>
           </select>
         </div>
         <div class="filter-actions">
@@ -482,7 +482,7 @@ const subsidyCols = [
   { key:'creator',          label:'创建人',         w:80 },
   { key:'createTime',       label:'创建时间',       w:150, muted:true },
   { key:'invoiceStatus',    label:'开票状态',       w:90,  badge:'invoice2' },
-  { key:'payStatus',        label:'认款状态',       w:90,  badge:'payment' },
+  { key:'payStatus',        label:'支付状态',       w:90,  badge:'payment' },
   { key:'invoiceApplicant', label:'开票申请人',     w:90 },
   { key:'invoiceApplyTime', label:'开票申请时间',   w:150, muted:true },
   { key:'invoiceTime',      label:'开票完成时间',   w:150, muted:true },
@@ -494,7 +494,7 @@ function payBadge(s)       { const m={已支付:'badge-green',未支付:'badge-g
 function invoiceBadge(s)   { const m={已开票:'badge-green',开票中:'badge-blue',未开票:'badge-gray'};    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
 function statusBadge(s)    { return `<span class="badge badge-blue">${s}</span>`; }
 function invoice2Badge(s)  { const m={已开票:'badge-green',开票中:'badge-blue',待开票:'badge-gray'};    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
-function paymentBadge(s)   { const m={认款完成:'badge-green',认款中:'badge-orange'};                    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+function paymentBadge(s)   { const m={已支付:'badge-green',未支付:'badge-gray'};                         return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
 function renderOps(ops)    { return '<div class="ops">'+ops.map((o,i)=>`<span class="op-link" onclick="showToast('${o}')">${o}</span>${i<ops.length-1?'<span class="op-sep">|</span>':''}`).join('')+'</div>'; }
 
 // ======= 渲染表格 =======
@@ -569,11 +569,11 @@ const platformRows = [
 
 // ======= 补贴单据数据（仅高德地图）=======
 const subsidyRows = [
-  { id:'SUB20260001', startDate:'2026-05-01', endDate:'2026-05-31', amount:'5000.00', remark:'Q2季度补贴',  creator:'张三',  createTime:'2026-06-05 10:22', invoiceStatus:'已开票', payStatus:'认款完成', invoiceApplicant:'张三',  invoiceApplyTime:'2026-06-06 10:00', invoiceTime:'2026-06-07 14:30', ops:['查看发票'] },
-  { id:'SUB20260002', startDate:'2026-05-01', endDate:'2026-05-31', amount:'3200.00', remark:'合同约定补贴', creator:'王五',  createTime:'2026-06-06 14:30', invoiceStatus:'开票中',  payStatus:'认款中',   invoiceApplicant:'王五',  invoiceApplyTime:'2026-06-07 09:00', invoiceTime:'—',              ops:[] },
-  { id:'SUB20260003', startDate:'2026-06-01', endDate:'2026-06-15', amount:'1500.00', remark:'—',           creator:'李四',  createTime:'2026-06-16 09:05', invoiceStatus:'待开票',  payStatus:'认款中',   invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
-  { id:'SUB20260004', startDate:'2026-06-01', endDate:'2026-06-30', amount:'2800.00', remark:'运营激励补贴', creator:'范文杰',createTime:'2026-06-20 15:18', invoiceStatus:'待开票',  payStatus:'认款中',   invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
-  { id:'SUB20260005', startDate:'2026-04-01', endDate:'2026-04-30', amount:'800.00',  remark:'—',           creator:'孙七',  createTime:'2026-05-08 11:00', invoiceStatus:'已开票',  payStatus:'认款完成', invoiceApplicant:'孙七',  invoiceApplyTime:'2026-05-09 10:00', invoiceTime:'2026-05-10 16:00', ops:['查看发票'] },
+  { id:'SUB20260001', startDate:'2026-05-01', endDate:'2026-05-31', amount:'5000.00', remark:'Q2季度补贴',  creator:'张三',  createTime:'2026-06-05 10:22', invoiceStatus:'已开票', payStatus:'已支付', invoiceApplicant:'张三',  invoiceApplyTime:'2026-06-06 10:00', invoiceTime:'2026-06-07 14:30', ops:['查看发票'] },
+  { id:'SUB20260002', startDate:'2026-05-01', endDate:'2026-05-31', amount:'3200.00', remark:'合同约定补贴', creator:'王五',  createTime:'2026-06-06 14:30', invoiceStatus:'开票中',  payStatus:'未支付',  invoiceApplicant:'王五',  invoiceApplyTime:'2026-06-07 09:00', invoiceTime:'—',              ops:[] },
+  { id:'SUB20260003', startDate:'2026-06-01', endDate:'2026-06-15', amount:'1500.00', remark:'—',           creator:'李四',  createTime:'2026-06-16 09:05', invoiceStatus:'待开票',  payStatus:'未支付',  invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
+  { id:'SUB20260004', startDate:'2026-06-01', endDate:'2026-06-30', amount:'2800.00', remark:'运营激励补贴', creator:'范文杰',createTime:'2026-06-20 15:18', invoiceStatus:'待开票',  payStatus:'未支付',  invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
+  { id:'SUB20260005', startDate:'2026-04-01', endDate:'2026-04-30', amount:'800.00',  remark:'—',           creator:'孙七',  createTime:'2026-05-08 11:00', invoiceStatus:'已开票',  payStatus:'已支付', invoiceApplicant:'孙七',  invoiceApplyTime:'2026-05-09 10:00', invoiceTime:'2026-05-10 16:00', ops:['查看发票'] },
 ];
 
 // ======= Tab 切换 =======
@@ -596,7 +596,7 @@ function overlayClick(e) {
   if (e.target === document.getElementById('subsidy-modal-overlay')) closeSubsidyModal();
 }
 function handleSubsidyCreate() {
-  showToast('补贴单据创建成功，开票状态：待开票，认款状态：认款中');
+  showToast('补贴单据创建成功，开票状态：待开票，支付状态：未支付');
   closeSubsidyModal();
 }
 
