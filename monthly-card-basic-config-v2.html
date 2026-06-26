@@ -896,14 +896,14 @@
 
         <div class="form-row" style="margin-bottom:0">
           <div class="form-label">
-            专属价场站数量描述
-            <span class="hint">选填</span>
+            <span class="required">*</span>专属价场站数量描述
+            <span class="hint">必填</span>
           </div>
           <div class="form-content">
             <input class="form-control" id="exclusive-station-desc" type="text"
               placeholder="请输入描述文案，如「覆盖全国 500+ 场站」"
               style="width:400px;max-width:100%">
-            <div class="form-hint">输入后将展示在 C 端月卡详情页的专属价权益位置，不填则不展示</div>
+            <div class="form-hint">将展示在 C 端月卡详情页的专属价权益位置；保存后只可修改，不可清空</div>
           </div>
         </div>
 
@@ -1123,11 +1123,14 @@ savedExclusiveUrl = newVal;
   function saveOperationParams() {
     const newKwh = document.getElementById('est-kwh').value.trim();
     if (!newKwh || Number(newKwh) < 1) { showToast('请填写有效的预估充电度数'); return; }
+    const newDesc = document.getElementById('exclusive-station-desc').value.trim();
+    if (!newDesc) { showToast('专属价场站数量描述为必填项'); return; }
+    if (savedStationDesc && !newDesc) { showToast('已保存的描述不可清空，只可修改'); return; }
     savedKwh = newKwh;
     document.getElementById('kwh-display').textContent = newKwh + ' 度';
     document.getElementById('kwh-edit').classList.add('hidden');
     document.getElementById('kwh-view').classList.remove('hidden');
-    savedStationDesc = document.getElementById('exclusive-station-desc').value.trim();
+    savedStationDesc = newDesc;
     showToast('运营参数配置已保存 ✓');
   }
 
