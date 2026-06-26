@@ -132,6 +132,30 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
 
 .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 20px;border-radius:4px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
+
+/* SEARCH SELECT */
+.ss-wrap{position:relative}
+.ss-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #d9d9d9;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.1);z-index:200;max-height:180px;overflow-y:auto;display:none}
+.ss-dropdown.open{display:block}
+.ss-option{padding:7px 12px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap}
+.ss-option:hover,.ss-option.highlighted{background:#f0faf8;color:#0B7B6B}
+.ss-option.selected{color:#0B7B6B;font-weight:500}
+.ss-empty{padding:8px 12px;font-size:13px;color:#bbb;text-align:center}
+
+/* UPLOAD ATTACHMENT */
+.upload-area{border:1.5px dashed #d9d9d9;border-radius:4px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
+.upload-area:hover{border-color:#0B7B6B;background:#f0faf8}
+.upload-hint-main{font-size:13px;color:#666;margin-top:6px}
+.upload-hint-sub{font-size:12px;color:#bbb;margin-top:3px}
+.file-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.file-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#fafafa;border:1px solid #f0f0f0;border-radius:4px}
+.file-thumb{width:32px;height:32px;object-fit:cover;border-radius:3px;flex-shrink:0;border:1px solid #f0f0f0}
+.file-icon{width:32px;height:32px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:-.5px}
+.file-info{flex:1;min-width:0}
+.file-name{font-size:13px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:11px;color:#aaa;margin-top:1px}
+.file-del{width:20px;height:20px;border:none;background:none;cursor:pointer;color:#ccc;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;transition:color .12s}
+.file-del:hover{color:#D93025}
 </style>
 </head>
 <body>
@@ -375,20 +399,23 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
 </div>
 </div><!-- /app -->
 
-<!-- ===== 新建补贴单据弹窗 ===== -->
+<!-- ===== 新建/编辑补贴单据弹窗 ===== -->
 <div class="modal-overlay" id="subsidy-modal-overlay" onclick="overlayClick(event)">
-  <div class="m-card" onclick="event.stopPropagation()">
+  <div class="m-card" style="width:560px" onclick="event.stopPropagation()">
     <div class="m-header">
-      <span class="m-title">新建补贴单据</span>
+      <span class="m-title" id="subsidyModalTitle">新建补贴单据</span>
       <button class="m-close" onclick="closeSubsidyModal()">×</button>
     </div>
     <div class="m-body">
 
       <div class="m-row">
-        <div class="m-label">平台商：</div>
-        <div class="m-content" style="display:flex;align-items:center;height:32px;gap:6px">
-          <span style="font-size:13px;color:#333;font-weight:500">高德地图</span>
-          <span style="font-size:12px;color:#bbb">（当前补贴单据仅关联高德）</span>
+        <div class="m-label"><span class="req">*</span>反向运营商：</div>
+        <div class="m-content">
+          <div class="ss-wrap">
+            <input type="text" class="m-ctrl" id="operatorInput" placeholder="搜索或选择反向运营商…" autocomplete="off"
+              oninput="filterOperators()" onfocus="openSS()" onblur="closeSS()">
+            <div class="ss-dropdown" id="ssDropdown"></div>
+          </div>
         </div>
       </div>
 
@@ -396,9 +423,9 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
         <div class="m-label"><span class="req">*</span>补贴周期：</div>
         <div class="m-content">
           <div class="m-date-row">
-            <input type="date" class="m-ctrl">
+            <input type="date" class="m-ctrl" id="periodStart">
             <span style="color:#aaa;font-size:13px;flex-shrink:0">~</span>
-            <input type="date" class="m-ctrl">
+            <input type="date" class="m-ctrl" id="periodEnd">
           </div>
           <div class="m-hint">补贴周期决定该单据的账期范围，仅用于记录，不影响现有账单数据</div>
         </div>
@@ -407,22 +434,35 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
       <div class="m-row">
         <div class="m-label"><span class="req">*</span>补贴金额：</div>
         <div class="m-content" style="display:flex;align-items:center;gap:8px">
-          <input type="number" class="m-ctrl" style="flex:1" min="0" step="0.01" placeholder="请输入金额">
+          <input type="number" class="m-ctrl" id="subsidyAmount" style="flex:1" min="0" step="0.01" placeholder="请输入金额">
           <span style="font-size:13px;color:#888;flex-shrink:0">元</span>
         </div>
       </div>
 
       <div class="m-row">
+        <div class="m-label">上传附件：</div>
+        <div class="m-content">
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('subsidyFileInput').click()">
+            <input type="file" id="subsidyFileInput" multiple accept=".xlsx,.xls,.csv,.png,.jpg,.jpeg,.gif,.pdf" style="display:none" onchange="handleFileChange(event)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:0 auto"><path d="M12 15V5M8 9l4-4 4 4" stroke="#bbb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1" stroke="#bbb" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <div class="upload-hint-main">点击上传附件</div>
+            <div class="upload-hint-sub">支持 Excel、CSV、图片（PNG / JPG）等格式</div>
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+      </div>
+
+      <div class="m-row" style="margin-bottom:4px">
         <div class="m-label">备注：</div>
         <div class="m-content">
-          <textarea class="m-ctrl" placeholder="选填，可补充说明补贴来源或依据"></textarea>
+          <textarea class="m-ctrl" id="subsidyRemark" placeholder="选填，可补充说明补贴来源或依据"></textarea>
         </div>
       </div>
 
     </div>
     <div class="m-footer">
       <button class="btn btn-default" onclick="closeSubsidyModal()">取 消</button>
-      <button class="btn btn-primary" onclick="handleSubsidyCreate()">确 定</button>
+      <button class="btn btn-primary" id="subsidySubmitBtn" onclick="handleSubsidySubmit()">确 定</button>
     </div>
   </div>
 </div>
@@ -496,7 +536,12 @@ function invoiceBadge(s)   { const m={已开票:'badge-green',开票中:'badge-b
 function statusBadge(s)    { return `<span class="badge badge-blue">${s}</span>`; }
 function invoice2Badge(s)  { const m={已开票:'badge-green',开票中:'badge-blue',待开票:'badge-gray'};    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
 function paymentBadge(s)   { const m={已支付:'badge-green',未支付:'badge-gray'};                         return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
-function renderOps(ops)    { return '<div class="ops">'+ops.map((o,i)=>`<span class="op-link" onclick="showToast('${o}')">${o}</span>${i<ops.length-1?'<span class="op-sep">|</span>':''}`).join('')+'</div>'; }
+function renderOps(ops, rowId) {
+  return '<div class="ops">'+ops.map((o,i)=>{
+    const handler = (o === '编辑' && rowId) ? `openSubsidyEditModal('${rowId}')` : `showToast('${o}')`;
+    return `<span class="op-link" onclick="${handler}">${o}</span>${i<ops.length-1?'<span class="op-sep">|</span>':''}`;
+  }).join('')+'</div>';
+}
 
 // ======= 渲染表格 =======
 function buildTable(theadId, tbodyId, cols, rows) {
@@ -529,7 +574,7 @@ function buildTable(theadId, tbodyId, cols, rows) {
       if (c.badge === 'invoice2')  cell = invoice2Badge(val);
       if (c.badge === 'payment')   cell = paymentBadge(val);
       if (c.badge === 'status')    cell = statusBadge(val);
-      if (c.op)                    cell = renderOps(val);
+      if (c.op)                    cell = renderOps(val, r.id);
       if (c.right && !c.badge && !c.op && Number(val)) cell = Number(val).toLocaleString();
       return `<td style="${s}">${cell}</td>`;
     }).join('');
@@ -568,13 +613,13 @@ const platformRows = [
   { id:'GD20260608001', platform:'高德地图', date:'2026-06-08', chargeOrders:2011, parkOrders:7,  kwh:'53124.89',  total:'98210.44',  elec:'57834.20', svc:'39756.24', park:'620.00', fee:'2011.00', adjElec:'57834.20', adjSvc:'39756.24', adjPark:'620.00', adjFee:'2011.00', receivable:'98210.44',  adjReason:'—',        status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
 ];
 
-// ======= 补贴单据数据（仅高德地图）=======
+// ======= 补贴单据数据 =======
 const subsidyRows = [
-  { id:'SUB20260001', startDate:'2026-05-01', endDate:'2026-05-31', amount:'5000.00', remark:'Q2季度补贴',  creator:'张三',  createTime:'2026-06-05 10:22', invoiceStatus:'已开票', payStatus:'已支付', payTime:'2026-06-08 11:30', invoiceApplicant:'张三',  invoiceApplyTime:'2026-06-06 10:00', invoiceTime:'2026-06-07 14:30', ops:['查看发票'] },
-  { id:'SUB20260002', startDate:'2026-05-01', endDate:'2026-05-31', amount:'3200.00', remark:'合同约定补贴', creator:'王五',  createTime:'2026-06-06 14:30', invoiceStatus:'开票中',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'王五',  invoiceApplyTime:'2026-06-07 09:00', invoiceTime:'—',              ops:['认款申诉'] },
-  { id:'SUB20260003', startDate:'2026-06-01', endDate:'2026-06-15', amount:'1500.00', remark:'—',           creator:'李四',  createTime:'2026-06-16 09:05', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票','认款申诉'] },
-  { id:'SUB20260004', startDate:'2026-06-01', endDate:'2026-06-30', amount:'2800.00', remark:'运营激励补贴', creator:'范文杰',createTime:'2026-06-20 15:18', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票','认款申诉'] },
-  { id:'SUB20260005', startDate:'2026-04-01', endDate:'2026-04-30', amount:'800.00',  remark:'—',           creator:'孙七',  createTime:'2026-05-08 11:00', invoiceStatus:'已开票',  payStatus:'已支付', payTime:'2026-05-12 10:00', invoiceApplicant:'孙七',  invoiceApplyTime:'2026-05-09 10:00', invoiceTime:'2026-05-10 16:00', ops:['查看发票'] },
+  { id:'SUB20260001', operator:'高德充电', startDate:'2026-05-01', endDate:'2026-05-31', amount:'5000.00', remark:'Q2季度补贴',  creator:'张三',  createTime:'2026-06-05 10:22', invoiceStatus:'已开票', payStatus:'已支付', payTime:'2026-06-08 11:30', invoiceApplicant:'张三',  invoiceApplyTime:'2026-06-06 10:00', invoiceTime:'2026-06-07 14:30', ops:['查看发票','编辑'] },
+  { id:'SUB20260002', operator:'高德充电', startDate:'2026-05-01', endDate:'2026-05-31', amount:'3200.00', remark:'合同约定补贴', creator:'王五',  createTime:'2026-06-06 14:30', invoiceStatus:'开票中',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'王五',  invoiceApplyTime:'2026-06-07 09:00', invoiceTime:'—',              ops:['认款申诉','编辑'] },
+  { id:'SUB20260003', operator:'高德充电', startDate:'2026-06-01', endDate:'2026-06-15', amount:'1500.00', remark:'—',           creator:'李四',  createTime:'2026-06-16 09:05', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票','认款申诉','编辑'] },
+  { id:'SUB20260004', operator:'高德充电', startDate:'2026-06-01', endDate:'2026-06-30', amount:'2800.00', remark:'运营激励补贴', creator:'范文杰',createTime:'2026-06-20 15:18', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票','认款申诉','编辑'] },
+  { id:'SUB20260005', operator:'高德充电', startDate:'2026-04-01', endDate:'2026-04-30', amount:'800.00',  remark:'—',           creator:'孙七',  createTime:'2026-05-08 11:00', invoiceStatus:'已开票',  payStatus:'已支付', payTime:'2026-05-12 10:00', invoiceApplicant:'孙七',  invoiceApplyTime:'2026-05-09 10:00', invoiceTime:'2026-05-10 16:00', ops:['查看发票','编辑'] },
 ];
 
 // ======= Tab 切换 =======
@@ -586,8 +631,95 @@ function switchMode(mode) {
   });
 }
 
+// ======= 反向运营商搜索下拉 =======
+const operators = ['高德充电','极氪充电','小米汽车','滴滴出行','星星充电','无锡市政新能源','吉林省平台'];
+let selectedOperator = '高德充电';
+
+function renderSSOptions(filter) {
+  const list = filter ? operators.filter(o => o.includes(filter)) : operators;
+  const dd = document.getElementById('ssDropdown');
+  dd.innerHTML = list.length
+    ? list.map(o => `<div class="ss-option${o===selectedOperator?' selected':''}" onmousedown="selectOperator('${o}')">${o}</div>`).join('')
+    : '<div class="ss-empty">无匹配结果</div>';
+}
+function openSS() {
+  renderSSOptions('');
+  document.getElementById('ssDropdown').classList.add('open');
+}
+function closeSS() {
+  setTimeout(() => document.getElementById('ssDropdown').classList.remove('open'), 150);
+}
+function filterOperators() {
+  renderSSOptions(document.getElementById('operatorInput').value);
+  document.getElementById('ssDropdown').classList.add('open');
+}
+function selectOperator(val) {
+  selectedOperator = val;
+  document.getElementById('operatorInput').value = val;
+  document.getElementById('ssDropdown').classList.remove('open');
+}
+
+// ======= 文件上传 =======
+let uploadedFiles = [];
+
+function handleFileChange(e) {
+  Array.from(e.target.files).forEach(f => uploadedFiles.push(f));
+  renderFileList();
+  e.target.value = '';
+}
+function removeFile(i) {
+  uploadedFiles.splice(i, 1);
+  renderFileList();
+}
+function isImage(name) { return /\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(name); }
+function fmtSize(b) { return b < 1024 ? b+'B' : b < 1048576 ? (b/1024).toFixed(1)+'KB' : (b/1048576).toFixed(1)+'MB'; }
+function renderFileList() {
+  const list = document.getElementById('fileList');
+  if (!uploadedFiles.length) { list.innerHTML = ''; return; }
+  list.innerHTML = uploadedFiles.map((f, i) => {
+    let thumb;
+    if (isImage(f.name)) {
+      thumb = `<img class="file-thumb" src="${URL.createObjectURL(f)}" alt="">`;
+    } else {
+      const ext = f.name.split('.').pop().toUpperCase();
+      const c = {XLS:'#52c41a',XLSX:'#52c41a',CSV:'#1890ff',PDF:'#D93025'}[ext] || '#1890ff';
+      thumb = `<div class="file-icon" style="background:${c}20;color:${c}">${ext}</div>`;
+    }
+    return `<div class="file-item">${thumb}<div class="file-info"><div class="file-name">${f.name}</div><div class="file-size">${fmtSize(f.size)}</div></div><button class="file-del" onclick="removeFile(${i})" title="删除">×</button></div>`;
+  }).join('');
+}
+
 // ======= Modal =======
+let subsidyEditMode = false;
+
 function openSubsidyModal() {
+  subsidyEditMode = false;
+  uploadedFiles = [];
+  selectedOperator = '高德充电';
+  document.getElementById('subsidyModalTitle').textContent = '新建补贴单据';
+  document.getElementById('subsidySubmitBtn').textContent = '确 定';
+  document.getElementById('operatorInput').value = '高德充电';
+  document.getElementById('periodStart').value = '';
+  document.getElementById('periodEnd').value = '';
+  document.getElementById('subsidyAmount').value = '';
+  document.getElementById('subsidyRemark').value = '';
+  renderFileList();
+  document.getElementById('subsidy-modal-overlay').classList.add('show');
+}
+function openSubsidyEditModal(id) {
+  const row = subsidyRows.find(r => r.id === id);
+  if (!row) return;
+  subsidyEditMode = true;
+  uploadedFiles = [];
+  selectedOperator = row.operator || '高德充电';
+  document.getElementById('subsidyModalTitle').textContent = '编辑补贴单据';
+  document.getElementById('subsidySubmitBtn').textContent = '保 存';
+  document.getElementById('operatorInput').value = selectedOperator;
+  document.getElementById('periodStart').value = row.startDate;
+  document.getElementById('periodEnd').value = row.endDate;
+  document.getElementById('subsidyAmount').value = row.amount;
+  document.getElementById('subsidyRemark').value = row.remark === '—' ? '' : row.remark;
+  renderFileList();
   document.getElementById('subsidy-modal-overlay').classList.add('show');
 }
 function closeSubsidyModal() {
@@ -596,8 +728,8 @@ function closeSubsidyModal() {
 function overlayClick(e) {
   if (e.target === document.getElementById('subsidy-modal-overlay')) closeSubsidyModal();
 }
-function handleSubsidyCreate() {
-  showToast('补贴单据创建成功，开票状态：待开票，支付状态：未支付');
+function handleSubsidySubmit() {
+  showToast(subsidyEditMode ? '补贴单据修改成功' : '补贴单据创建成功，开票状态：待开票，支付状态：未支付');
   closeSubsidyModal();
 }
 
