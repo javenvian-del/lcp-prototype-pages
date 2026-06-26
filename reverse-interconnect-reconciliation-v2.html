@@ -353,7 +353,7 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
         </button>
       </div>
       <div class="table-wrap">
-        <table class="data-table" style="min-width:1700px">
+        <table class="data-table" style="min-width:1860px">
           <thead><tr id="thead-subsidy"></tr></thead>
           <tbody id="tbody-subsidy"></tbody>
         </table>
@@ -483,6 +483,7 @@ const subsidyCols = [
   { key:'createTime',       label:'创建时间',       w:150, muted:true },
   { key:'invoiceStatus',    label:'开票状态',       w:90,  badge:'invoice2' },
   { key:'payStatus',        label:'支付状态',       w:90,  badge:'payment' },
+  { key:'payTime',          label:'认款完成时间',   w:150, muted:true, hl:true },
   { key:'invoiceApplicant', label:'开票申请人',     w:90 },
   { key:'invoiceApplyTime', label:'开票申请时间',   w:150, muted:true },
   { key:'invoiceTime',      label:'开票完成时间',   w:150, muted:true },
@@ -569,11 +570,11 @@ const platformRows = [
 
 // ======= 补贴单据数据（仅高德地图）=======
 const subsidyRows = [
-  { id:'SUB20260001', startDate:'2026-05-01', endDate:'2026-05-31', amount:'5000.00', remark:'Q2季度补贴',  creator:'张三',  createTime:'2026-06-05 10:22', invoiceStatus:'已开票', payStatus:'已支付', invoiceApplicant:'张三',  invoiceApplyTime:'2026-06-06 10:00', invoiceTime:'2026-06-07 14:30', ops:['查看发票'] },
-  { id:'SUB20260002', startDate:'2026-05-01', endDate:'2026-05-31', amount:'3200.00', remark:'合同约定补贴', creator:'王五',  createTime:'2026-06-06 14:30', invoiceStatus:'开票中',  payStatus:'未支付',  invoiceApplicant:'王五',  invoiceApplyTime:'2026-06-07 09:00', invoiceTime:'—',              ops:[] },
-  { id:'SUB20260003', startDate:'2026-06-01', endDate:'2026-06-15', amount:'1500.00', remark:'—',           creator:'李四',  createTime:'2026-06-16 09:05', invoiceStatus:'待开票',  payStatus:'未支付',  invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
-  { id:'SUB20260004', startDate:'2026-06-01', endDate:'2026-06-30', amount:'2800.00', remark:'运营激励补贴', creator:'范文杰',createTime:'2026-06-20 15:18', invoiceStatus:'待开票',  payStatus:'未支付',  invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
-  { id:'SUB20260005', startDate:'2026-04-01', endDate:'2026-04-30', amount:'800.00',  remark:'—',           creator:'孙七',  createTime:'2026-05-08 11:00', invoiceStatus:'已开票',  payStatus:'已支付', invoiceApplicant:'孙七',  invoiceApplyTime:'2026-05-09 10:00', invoiceTime:'2026-05-10 16:00', ops:['查看发票'] },
+  { id:'SUB20260001', startDate:'2026-05-01', endDate:'2026-05-31', amount:'5000.00', remark:'Q2季度补贴',  creator:'张三',  createTime:'2026-06-05 10:22', invoiceStatus:'已开票', payStatus:'已支付', payTime:'2026-06-08 11:30', invoiceApplicant:'张三',  invoiceApplyTime:'2026-06-06 10:00', invoiceTime:'2026-06-07 14:30', ops:['查看发票'] },
+  { id:'SUB20260002', startDate:'2026-05-01', endDate:'2026-05-31', amount:'3200.00', remark:'合同约定补贴', creator:'王五',  createTime:'2026-06-06 14:30', invoiceStatus:'开票中',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'王五',  invoiceApplyTime:'2026-06-07 09:00', invoiceTime:'—',              ops:[] },
+  { id:'SUB20260003', startDate:'2026-06-01', endDate:'2026-06-15', amount:'1500.00', remark:'—',           creator:'李四',  createTime:'2026-06-16 09:05', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
+  { id:'SUB20260004', startDate:'2026-06-01', endDate:'2026-06-30', amount:'2800.00', remark:'运营激励补贴', creator:'范文杰',createTime:'2026-06-20 15:18', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票'] },
+  { id:'SUB20260005', startDate:'2026-04-01', endDate:'2026-04-30', amount:'800.00',  remark:'—',           creator:'孙七',  createTime:'2026-05-08 11:00', invoiceStatus:'已开票',  payStatus:'已支付', payTime:'2026-05-12 10:00', invoiceApplicant:'孙七',  invoiceApplyTime:'2026-05-09 10:00', invoiceTime:'2026-05-10 16:00', ops:['查看发票'] },
 ];
 
 // ======= Tab 切换 =======
