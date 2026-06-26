@@ -866,13 +866,13 @@
         </div>
       </div>
 
-      <!-- ④ 预估充电度数 -->
+      <!-- ④ 运营参数配置 -->
       <div class="card">
         <div class="card-title">
           <div class="card-title-dot"></div>
-          充电预估配置
+          运营参数配置
         </div>
-        <div class="form-row" style="margin-bottom:0">
+        <div class="form-row">
           <div class="form-label">
             <span class="required">*</span>预估充电度数
             <span class="hint">用于C端显示"本单预计可省**元"</span>
@@ -894,6 +894,22 @@
           </div>
         </div>
 
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-label">
+            专属价场站数量描述
+            <span class="hint">选填</span>
+          </div>
+          <div class="form-content">
+            <input class="form-control" id="exclusive-station-desc" type="text"
+              placeholder="请输入描述文案，如「覆盖全国 500+ 场站」"
+              style="width:400px;max-width:100%">
+            <div class="form-hint">输入后将展示在 C 端月卡详情页的专属价权益位置，不填则不展示</div>
+          </div>
+        </div>
+
+        <div class="section-edit-actions" style="margin-top:20px">
+          <button class="btn btn-primary" onclick="saveOperationParams()">保存</button>
+        </div>
       </div>
 
       <!-- ⑤ 基础权益配置 -->
@@ -1090,8 +1106,9 @@ savedExclusiveUrl = newVal;
     showToast('开卡引导配置已保存 ✓');
   }
 
-  // ===== 充电预估配置 =====
+  // ===== 运营参数配置 =====
   let savedKwh = '35';
+  let savedStationDesc = '';
 
   function startEditKwh() {
     document.getElementById('est-kwh').value = savedKwh;
@@ -1103,16 +1120,15 @@ savedExclusiveUrl = newVal;
     document.getElementById('kwh-edit').classList.add('hidden');
     document.getElementById('kwh-view').classList.remove('hidden');
   }
-  function saveEditKwh() {
-    const newVal = document.getElementById('est-kwh').value.trim();
-    if (!newVal || Number(newVal) < 1) { showToast('请填写有效的预估充电度数'); return; }
-    if (newVal !== savedKwh) {
-savedKwh = newVal;
-      
-    }
-    document.getElementById('kwh-display').textContent = newVal + ' 度';
-    cancelEditKwh();
-    showToast('充电预估配置已保存 ✓');
+  function saveOperationParams() {
+    const newKwh = document.getElementById('est-kwh').value.trim();
+    if (!newKwh || Number(newKwh) < 1) { showToast('请填写有效的预估充电度数'); return; }
+    savedKwh = newKwh;
+    document.getElementById('kwh-display').textContent = newKwh + ' 度';
+    document.getElementById('kwh-edit').classList.add('hidden');
+    document.getElementById('kwh-view').classList.remove('hidden');
+    savedStationDesc = document.getElementById('exclusive-station-desc').value.trim();
+    showToast('运营参数配置已保存 ✓');
   }
 
   // ===== SKU 配置 =====
