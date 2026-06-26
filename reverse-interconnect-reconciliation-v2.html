@@ -226,8 +226,28 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
           </select>
         </div>
         <div class="filter-field">
-          <span class="filter-label">月份：</span>
-          <input type="month" class="filter-control" value="2026-05" style="width:150px">
+          <span class="filter-label">出账周期：</span>
+          <select class="filter-control" style="width:110px">
+            <option value="">全部</option>
+            <option>日</option>
+            <option selected>月</option>
+            <option>季度</option>
+            <option>年度</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">账期范围：</span>
+          <input type="date" class="filter-control" value="2026-05-01" style="width:140px">
+          <span class="date-sep">~</span>
+          <input type="date" class="filter-control" value="2026-05-31" style="width:140px">
+        </div>
+      </div>
+      <div class="filter-row" style="margin-top:10px">
+        <div class="filter-field">
+          <span class="filter-label">出账日期：</span>
+          <input type="date" class="filter-control" style="width:140px">
+          <span class="date-sep">~</span>
+          <input type="date" class="filter-control" style="width:140px">
         </div>
         <div class="filter-field">
           <span class="filter-label">结算状态：</span>
@@ -320,7 +340,7 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
         </span>
       </div>
       <div class="table-wrap">
-        <table class="data-table" style="min-width:2200px">
+        <table class="data-table" style="min-width:2420px">
           <thead><tr id="thead-trade"></tr></thead>
           <tbody id="tbody-trade"></tbody>
         </table>
@@ -471,11 +491,14 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
 
 <script>
 // ======= 列定义（无补贴列）=======
-function buildCols(dateLabel, withFee, withInvoice) {
+function buildCols(dateLabel, withFee, withInvoice, withBillDate) {
   const base = [
     { key:'id',               label:'对账单号',         w:160, stickyL:'40px', mono:true },
     { key:'platform',         label:'反向互联平台商',    w:190 },
-    { key:'date',             label:dateLabel,           w:110 },
+    { key:'date',             label:dateLabel,           w:200 },
+  ];
+  if (withBillDate) base.push({ key:'billDate', label:'出账日期', w:110, muted:true });
+  base.push(
     { key:'chargeOrders',     label:'充电服务单数',      w:100, right:true },
     { key:'parkOrders',       label:'占位服务单数',      w:100, right:true },
     { key:'kwh',              label:'总电量',            w:120, right:true },
@@ -483,7 +506,7 @@ function buildCols(dateLabel, withFee, withInvoice) {
     { key:'elec',             label:'电费',              w:110, right:true },
     { key:'svc',              label:'服务费',            w:110, right:true },
     { key:'park',             label:'占位费',            w:100, right:true },
-  ];
+  );
   if (withFee) base.push({ key:'fee', label:'手续费', w:100, right:true, hl:true });
   base.push(
     { key:'adjElec',          label:'调整后电费',        w:110, right:true },
@@ -590,15 +613,15 @@ function toggleAll(el, tbodyId) {
 
 // ======= 通用账单数据 =======
 const tradeRows = [
-  { id:'10065420167192766', platform:'【反向互联渠道平台】-极氪',  date:'202605', chargeOrders:13784, parkOrders:30,  kwh:'602981.97',  total:'704410.78', elec:'348214.91', svc:'355315.87', park:'880.00',  fee:'12340.00', adjElec:'348214.91', adjSvc:'355315.87', adjPark:'880.00',  adjFee:'12340.00', receivable:'704410.78', adjReason:'—', status:'已生成', payStatus:'已支付',   payTime:'2026-06-10 09:12', invoiceStatus:'已开票', invoiceApplicant:'张三', invoiceApplyTime:'2026-06-10 10:00', invoiceTime:'2026-06-11 15:22', settleApplicant:'李四', settleApplyTime:'2026-06-12 09:00', ops:['导出','查看发票','更多'] },
-  { id:'10065420167192762', platform:'招商局大厦',                  date:'202605', chargeOrders:136,   parkOrders:0,   kwh:'3402.13',    total:'996.92',    elec:'996.92',    svc:'0.00',      park:'0.00',   fee:'0.00',     adjElec:'996.92',    adjSvc:'0.00',     adjPark:'0.00',   adjFee:'0.00',     receivable:'996.92',    adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
-  { id:'10065420167192745', platform:'【反向互联渠道平台】-小米',  date:'202605', chargeOrders:7343,  parkOrders:12,  kwh:'373226.69',  total:'381825.89', elec:'195456.97', svc:'185692.92', park:'676.00', fee:'8820.00',  adjElec:'195456.97', adjSvc:'185692.92',adjPark:'676.00',  adjFee:'8820.00',  receivable:'381825.89', adjReason:'—', status:'已生成', payStatus:'已支付',   payTime:'2026-06-09 14:30', invoiceStatus:'已开票', invoiceApplicant:'王五', invoiceApplyTime:'2026-06-09 16:00', invoiceTime:'2026-06-10 11:00', settleApplicant:'赵六', settleApplyTime:'2026-06-11 10:00', ops:['导出','查看发票','更多'] },
-  { id:'10058390782563593', platform:'重庆数字交通产业集团',       date:'202605', chargeOrders:95740, parkOrders:0,   kwh:'2092160.75', total:'1667456.07',elec:'0.00',      svc:'1667456.07',park:'0.00',   fee:'0.00',     adjElec:'0.00',      adjSvc:'1667456.07',adjPark:'0.00',   adjFee:'0.00',     receivable:'1667456.07',adjReason:'—', status:'已生成', payStatus:'部分支付', payTime:'2026-06-08 11:20',invoiceStatus:'开票中', invoiceApplicant:'孙七', invoiceApplyTime:'2026-06-08 12:00', invoiceTime:'—', settleApplicant:'周八', settleApplyTime:'2026-06-10 09:00', ops:['开票','导出','更多'] },
-  { id:'10058390782563592', platform:'【反向互联渠道平台】-小桔', date:'202605', chargeOrders:42082, parkOrders:0,   kwh:'1107402.46', total:'786301.18', elec:'479496.36', svc:'306804.82', park:'0.00',   fee:'5600.00',  adjElec:'479496.36', adjSvc:'306804.82',adjPark:'0.00',   adjFee:'5600.00',  receivable:'786301.18', adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
-  { id:'10058390782563591', platform:'无锡市政公用新能源科技',     date:'202605', chargeOrders:43,    parkOrders:0,   kwh:'925.47',     total:'67.83',     elec:'0.00',      svc:'67.83',     park:'0.00',   fee:'0.00',     adjElec:'0.00',      adjSvc:'67.83',    adjPark:'0.00',   adjFee:'0.00',     receivable:'67.83',     adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
-  { id:'10058390782563589', platform:'【反向互联渠道平台】-星星', date:'202605', chargeOrders:577,   parkOrders:4,   kwh:'15507.95',   total:'11990.21',  elec:'7125.48',   svc:'4726.73',   park:'138.00', fee:'320.00',   adjElec:'7125.48',   adjSvc:'4726.73',  adjPark:'138.00', adjFee:'320.00',   receivable:'11990.21',  adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
-  { id:'10058390782563576', platform:'吉林省平台',                  date:'202605', chargeOrders:1213,  parkOrders:0,   kwh:'25771.75',   total:'39289.23',  elec:'18728.47',  svc:'20560.76',  park:'0.00',   fee:'410.00',   adjElec:'18728.47',  adjSvc:'20560.76', adjPark:'0.00',   adjFee:'410.00',   receivable:'39289.23',  adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
-  { id:'10058390782563567', platform:'上海',                        date:'202605', chargeOrders:172,   parkOrders:2,   kwh:'3304.65',    total:'3550.10',   elec:'1805.77',   svc:'1642.33',   park:'102.00', fee:'88.00',    adjElec:'1805.77',   adjSvc:'1642.33',  adjPark:'102.00', adjFee:'88.00',    receivable:'3550.10',   adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10065420167192766', platform:'【反向互联渠道平台】-极氪',  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:13784, parkOrders:30,  kwh:'602981.97',  total:'704410.78', elec:'348214.91', svc:'355315.87', park:'880.00',  fee:'12340.00', adjElec:'348214.91', adjSvc:'355315.87', adjPark:'880.00',  adjFee:'12340.00', receivable:'704410.78', adjReason:'—', status:'已生成', payStatus:'已支付',   payTime:'2026-06-10 09:12', invoiceStatus:'已开票', invoiceApplicant:'张三', invoiceApplyTime:'2026-06-10 10:00', invoiceTime:'2026-06-11 15:22', settleApplicant:'李四', settleApplyTime:'2026-06-12 09:00', ops:['导出','查看发票','更多'] },
+  { id:'10065420167192762', platform:'招商局大厦',                  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:136,   parkOrders:0,   kwh:'3402.13',    total:'996.92',    elec:'996.92',    svc:'0.00',      park:'0.00',   fee:'0.00',     adjElec:'996.92',    adjSvc:'0.00',     adjPark:'0.00',   adjFee:'0.00',     receivable:'996.92',    adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10065420167192745', platform:'【反向互联渠道平台】-小米',  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:7343,  parkOrders:12,  kwh:'373226.69',  total:'381825.89', elec:'195456.97', svc:'185692.92', park:'676.00', fee:'8820.00',  adjElec:'195456.97', adjSvc:'185692.92',adjPark:'676.00',  adjFee:'8820.00',  receivable:'381825.89', adjReason:'—', status:'已生成', payStatus:'已支付',   payTime:'2026-06-09 14:30', invoiceStatus:'已开票', invoiceApplicant:'王五', invoiceApplyTime:'2026-06-09 16:00', invoiceTime:'2026-06-10 11:00', settleApplicant:'赵六', settleApplyTime:'2026-06-11 10:00', ops:['导出','查看发票','更多'] },
+  { id:'10058390782563593', platform:'重庆数字交通产业集团',       date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:95740, parkOrders:0,   kwh:'2092160.75', total:'1667456.07',elec:'0.00',      svc:'1667456.07',park:'0.00',   fee:'0.00',     adjElec:'0.00',      adjSvc:'1667456.07',adjPark:'0.00',   adjFee:'0.00',     receivable:'1667456.07',adjReason:'—', status:'已生成', payStatus:'部分支付', payTime:'2026-06-08 11:20',invoiceStatus:'开票中', invoiceApplicant:'孙七', invoiceApplyTime:'2026-06-08 12:00', invoiceTime:'—', settleApplicant:'周八', settleApplyTime:'2026-06-10 09:00', ops:['开票','导出','更多'] },
+  { id:'10058390782563592', platform:'【反向互联渠道平台】-小桔', date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:42082, parkOrders:0,   kwh:'1107402.46', total:'786301.18', elec:'479496.36', svc:'306804.82', park:'0.00',   fee:'5600.00',  adjElec:'479496.36', adjSvc:'306804.82',adjPark:'0.00',   adjFee:'5600.00',  receivable:'786301.18', adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563591', platform:'无锡市政公用新能源科技',     date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:43,    parkOrders:0,   kwh:'925.47',     total:'67.83',     elec:'0.00',      svc:'67.83',     park:'0.00',   fee:'0.00',     adjElec:'0.00',      adjSvc:'67.83',    adjPark:'0.00',   adjFee:'0.00',     receivable:'67.83',     adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563589', platform:'【反向互联渠道平台】-星星', date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:577,   parkOrders:4,   kwh:'15507.95',   total:'11990.21',  elec:'7125.48',   svc:'4726.73',   park:'138.00', fee:'320.00',   adjElec:'7125.48',   adjSvc:'4726.73',  adjPark:'138.00', adjFee:'320.00',   receivable:'11990.21',  adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563576', platform:'吉林省平台',                  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:1213,  parkOrders:0,   kwh:'25771.75',   total:'39289.23',  elec:'18728.47',  svc:'20560.76',  park:'0.00',   fee:'410.00',   adjElec:'18728.47',  adjSvc:'20560.76', adjPark:'0.00',   adjFee:'410.00',   receivable:'39289.23',  adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563567', platform:'上海',                        date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:172,   parkOrders:2,   kwh:'3304.65',    total:'3550.10',   elec:'1805.77',   svc:'1642.33',   park:'102.00', fee:'88.00',    adjElec:'1805.77',   adjSvc:'1642.33',  adjPark:'102.00', adjFee:'88.00',    receivable:'3550.10',   adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
 ];
 
 // ======= 高德账单数据 =======
@@ -742,7 +765,7 @@ function showToast(msg) {
 }
 
 // ======= 初始化渲染 =======
-buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', false, true),  tradeRows);
+buildTable('thead-trade',    'tbody-trade',    buildCols('对账周期', false, true, true),  tradeRows);
 buildTable('thead-platform', 'tbody-platform', buildCols('账单日期', true, false), platformRows);
 buildTable('thead-subsidy',  'tbody-subsidy',  subsidyCols,                 subsidyRows);
 </script>
