@@ -993,50 +993,6 @@
         </div>
       </div>
 
-      <!-- ⑤ 基础权益配置 -->
-      <div class="card">
-        <div class="card-title">
-          <div class="card-title-dot"></div>
-          基础权益配置
-        </div>
-
-        <div class="form-row">
-          <div class="form-label">
-            <span class="required">*</span>非车主成品武器 ID
-            <span class="hint">三方用户开卡自动发放</span>
-          </div>
-          <div class="form-content">
-            <div class="id-view-row" id="basic-view">
-              <span class="id-display" id="basic-display">WPN_BASIC_20240501001</span>
-              <button class="btn btn-default btn-sm" onclick="startEdit('basic')">编辑</button>
-            </div>
-            <div class="id-edit-row hidden" id="basic-edit">
-              <input class="form-control" id="basic-input" style="width:280px" placeholder="请输入成品武器 ID">
-              <button class="btn btn-default" onclick="cancelEdit('basic')">取消</button>
-              <button class="btn btn-primary" onclick="saveEdit('basic')">立即保存</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-row" style="margin-bottom:0">
-          <div class="form-label">
-            车主成品武器 ID
-            <span class="hint">仅理想车主可享，选填</span>
-          </div>
-          <div class="form-content">
-            <div class="id-view-row" id="owner-view">
-              <span class="id-display id-empty" id="owner-display">未配置</span>
-              <button class="btn btn-default btn-sm" onclick="startEdit('owner')">编辑</button>
-            </div>
-            <div class="id-edit-row hidden" id="owner-edit">
-              <input class="form-control" id="owner-input" style="width:280px" placeholder="请输入成品武器 ID（选填）">
-              <button class="btn btn-default" onclick="cancelEdit('owner')">取消</button>
-              <button class="btn btn-primary" onclick="saveEdit('owner')">立即保存</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 券包权益补充说明 -->
       <div class="card">
         <div class="card-title">
@@ -1085,20 +1041,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ===== 武器 ID 内联编辑 =====
-  const weaponIds = {
-    basic: 'WPN_BASIC_20240501001',
-    owner: ''
-  };
-  const fieldLabels = {
-    basic: '非车主成品武器 ID',
-    owner: '车主成品武器 ID'
-  };
-
-  // 新增字段状态追踪（用于日志对比）
-  let exclusiveImgName = '';
-
   // ===== 专属活动跳转地址 =====
+  let exclusiveImgName = '';
   let savedExclusiveUrl = '';
 
   function startEditExclusiveUrl() {
@@ -1231,50 +1175,6 @@ savedKwh = newVal;
     cancelSkuEdit(key);
     showToast(skuLabels[key] + ' 已保存 ✓');
   }
-
-  function startEdit(key) {
-    const input = document.getElementById(key + '-input');
-    input.value = weaponIds[key];
-    document.getElementById(key + '-view').classList.add('hidden');
-    document.getElementById(key + '-edit').classList.remove('hidden');
-    input.focus();
-    input.select();
-  }
-
-  function cancelEdit(key) {
-    document.getElementById(key + '-edit').classList.add('hidden');
-    document.getElementById(key + '-view').classList.remove('hidden');
-  }
-
-  function saveEdit(key) {
-    const input = document.getElementById(key + '-input');
-    const newVal = input.value.trim();
-    if (key === 'basic' && !newVal) {
-      showToast('基础权益成品武器 ID 不能为空');
-      input.focus();
-      return;
-    }
-    const oldVal = weaponIds[key];
-    weaponIds[key] = newVal;
-
-    // 更新显示
-    const display = document.getElementById(key + '-display');
-    if (newVal) {
-      display.textContent = newVal;
-      display.classList.remove('id-empty');
-    } else {
-      display.textContent = '未配置';
-      display.classList.add('id-empty');
-    }
-
-    // 写入日志
-    if (newVal !== oldVal) {
-}
-
-    cancelEdit(key);
-    showToast(fieldLabels[key] + ' 已保存 ✓');
-  }
-
 
   // ===== 图片上传规格 =====
   const uploadSpecs = {
