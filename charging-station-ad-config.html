@@ -14,57 +14,34 @@
       height: 100vh;
       overflow: hidden;
     }
-
-    .app { display: flex; height: 100vh; overflow: hidden; }
+    .app { display: flex; height: 100vh; }
 
     /* ===== SIDEBAR ===== */
     .sidebar {
-      width: 188px;
-      min-width: 188px;
-      background: #1A3530;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      overflow-x: hidden;
+      width: 188px; min-width: 188px; background: #1A3530;
+      display: flex; flex-direction: column;
+      overflow-y: auto; overflow-x: hidden;
     }
     .sidebar::-webkit-scrollbar { width: 0; }
     .sidebar-logo {
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #fff;
-      letter-spacing: 0.3px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      flex-shrink: 0;
+      padding: 14px 16px; display: flex; align-items: center; gap: 9px;
+      font-size: 14px; font-weight: 600; color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
     }
     .logo-icon {
-      width: 28px; height: 28px;
-      background: #0B7B6B;
-      border-radius: 6px;
+      width: 28px; height: 28px; background: #0B7B6B; border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      color: #fff; font-size: 14px; font-weight: 700;
+      color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0;
     }
     .menu-section { padding: 6px 0; }
     .menu-group-label {
-      padding: 10px 16px 4px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.35);
-      letter-spacing: 0.5px;
-      user-select: none;
+      padding: 10px 16px 4px; font-size: 11px; color: rgba(255,255,255,0.35);
+      letter-spacing: 0.5px; user-select: none;
     }
     .menu-item {
-      display: flex; align-items: center;
-      padding: 9px 16px;
-      cursor: pointer;
-      font-size: 13px;
-      color: rgba(255,255,255,0.65);
-      transition: background 0.15s, color 0.15s;
-      gap: 8px;
-      user-select: none;
+      display: flex; align-items: center; padding: 9px 16px; cursor: pointer;
+      font-size: 13px; color: rgba(255,255,255,0.65);
+      transition: background 0.15s, color 0.15s; gap: 8px; user-select: none;
     }
     .menu-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
     .menu-item.active { background: #0B7B6B; color: #fff; }
@@ -73,795 +50,303 @@
     .menu-sub .menu-item { padding-left: 40px; }
     .menu-sub .menu-item.active { background: rgba(11,123,107,0.6); }
     .sidebar-footer {
-      padding: 12px 16px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      display: flex; align-items: center; gap: 8px;
-      margin-top: auto;
-      flex-shrink: 0;
+      padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 8px; margin-top: auto; flex-shrink: 0;
     }
     .avatar {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: #0B7B6B;
+      width: 28px; height: 28px; border-radius: 50%; background: #0B7B6B;
       display: flex; align-items: center; justify-content: center;
-      font-size: 12px; color: #fff;
-      flex-shrink: 0;
+      font-size: 12px; color: #fff; flex-shrink: 0;
     }
     .avatar-name { font-size: 13px; color: rgba(255,255,255,0.65); }
 
     /* ===== MAIN ===== */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
     /* ===== HEADER ===== */
     .header {
-      height: 56px;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      border-bottom: 1px solid #E8E8E8;
-      flex-shrink: 0;
-      gap: 12px;
+      height: 56px; background: #fff; display: flex; align-items: center;
+      padding: 0 24px; border-bottom: 1px solid #E8E8E8; flex-shrink: 0; gap: 12px;
     }
     .header-back {
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      color: #666;
-      font-size: 18px;
-      border-radius: 6px;
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #666; font-size: 18px; border-radius: 6px;
       transition: background 0.15s;
     }
     .header-back:hover { background: #F5F5F5; }
-    .header-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1A1A1A;
-    }
+    .header-title { font-size: 16px; font-weight: 600; color: #1A1A1A; }
 
     /* ===== CONTENT ===== */
     .content {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-      padding: 20px 24px;
-      gap: 20px;
+      flex: 1; display: flex; overflow: hidden; padding: 20px 24px; gap: 20px;
     }
 
     /* ===== PHONE PREVIEW ===== */
-    .phone-preview {
-      width: 360px;
-      min-width: 360px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .phone-preview { width: 360px; min-width: 360px; display: flex; flex-direction: column; align-items: center; }
     .phone-frame {
-      width: 360px;
-      height: 740px;
-      background: #fff;
-      border-radius: 24px;
-      border: 8px solid #1A1A1A;
-      overflow: hidden;
-      position: relative;
+      width: 360px; height: 740px; background: #fff; border-radius: 24px;
+      border: 8px solid #1A1A1A; overflow: hidden; position: relative;
       box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     }
+
+    /* Status bar */
     .phone-status-bar {
-      height: 44px;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 16px;
-      position: relative;
+      height: 44px; background: #fff; display: flex; align-items: center;
+      justify-content: center; padding: 0 16px; position: relative;
     }
-    .phone-time {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1A1A1A;
-    }
+    .phone-time { font-size: 15px; font-weight: 600; color: #1A1A1A; }
     .phone-notch {
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 120px;
-      height: 28px;
-      background: #1A1A1A;
-      border-radius: 0 0 16px 16px;
+      position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+      width: 120px; height: 28px; background: #1A1A1A; border-radius: 0 0 16px 16px;
     }
     .phone-status-icons {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      display: flex; align-items: center; gap: 6px;
     }
     .phone-signal { font-size: 12px; color: #1A1A1A; }
     .phone-battery {
-      width: 24px; height: 12px;
-      border: 1.5px solid #1A1A1A;
-      border-radius: 3px;
-      position: relative;
-      display: flex; align-items: center;
-      padding: 1.5px;
+      width: 24px; height: 12px; border: 1.5px solid #1A1A1A; border-radius: 3px;
+      position: relative; display: flex; align-items: center; padding: 1.5px;
     }
     .phone-battery::after {
-      content: '';
-      position: absolute;
-      right: -4px;
-      width: 2px; height: 6px;
-      background: #1A1A1A;
-      border-radius: 0 1px 1px 0;
+      content: ''; position: absolute; right: -4px; width: 2px; height: 6px;
+      background: #1A1A1A; border-radius: 0 1px 1px 0;
     }
-    .phone-battery-fill {
-      width: 70%;
-      height: 100%;
-      background: #1A1A1A;
-      border-radius: 1px;
-    }
-    .phone-nav-bar {
-      height: 44px;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      position: relative;
-    }
-    .phone-nav-back {
-      font-size: 20px;
-      color: #1A1A1A;
-      cursor: pointer;
-    }
-    .phone-nav-title {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 17px;
-      font-weight: 600;
-      color: #1A1A1A;
-    }
-    .phone-nav-icons {
-      margin-left: auto;
-      display: flex;
-      gap: 16px;
-    }
-    .phone-nav-icon {
-      font-size: 18px;
-      color: #1A1A1A;
-      cursor: pointer;
-    }
+    .phone-battery-fill { width: 70%; height: 100%; background: #1A1A1A; border-radius: 1px; }
 
-    /* Map area */
-    .phone-map {
-      height: 160px;
-      background: #E8F0E8;
-      position: relative;
-      overflow: hidden;
+    /* Nav bar */
+    .phone-nav-bar {
+      height: 44px; background: #fff; display: flex; align-items: center;
+      padding: 0 16px; position: relative;
     }
+    .phone-nav-back { font-size: 20px; color: #1A1A1A; cursor: pointer; }
+    .phone-nav-title {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      font-size: 17px; font-weight: 600; color: #1A1A1A;
+    }
+    .phone-nav-icons { margin-left: auto; display: flex; gap: 16px; }
+    .phone-nav-icon { font-size: 18px; color: #1A1A1A; cursor: pointer; }
+
+    /* Map */
+    .phone-map { height: 160px; background: #E8F0E8; position: relative; overflow: hidden; }
     .map-grid {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
       background-size: 20px 20px;
     }
-    .map-road {
-      position: absolute;
-      background: #fff;
-    }
+    .map-road { position: absolute; background: #fff; }
     .map-road-h1 { top: 40px; left: 0; right: 0; height: 20px; }
     .map-road-h2 { top: 100px; left: 0; right: 0; height: 16px; }
     .map-road-v1 { left: 80px; top: 0; bottom: 0; width: 16px; }
     .map-road-v2 { left: 200px; top: 0; bottom: 0; width: 20px; }
     .map-marker {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center;
     }
     .marker-pin {
-      width: 32px; height: 32px;
-      background: #FF6B35;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      display: flex; align-items: center; justify-content: center;
-      border: 3px solid #fff;
-      box-shadow: 0 2px 8px rgba(255,107,53,0.4);
+      width: 32px; height: 32px; background: #FF6B35; border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg); display: flex; align-items: center; justify-content: center;
+      border: 3px solid #fff; box-shadow: 0 2px 8px rgba(255,107,53,0.4);
     }
-    .marker-pin-inner {
-      width: 10px; height: 10px;
-      background: #fff;
-      border-radius: 50%;
-      transform: rotate(45deg);
-    }
-    .marker-label {
-      margin-top: 4px;
-      font-size: 11px;
-      color: #FF6B35;
-      font-weight: 600;
-      white-space: nowrap;
-    }
+    .marker-pin-inner { width: 10px; height: 10px; background: #fff; border-radius: 50%; transform: rotate(45deg); }
+    .marker-label { margin-top: 4px; font-size: 11px; color: #FF6B35; font-weight: 600; white-space: nowrap; }
     .map-blue-dot {
-      position: absolute;
-      bottom: 30px;
-      left: 60px;
-      width: 14px; height: 14px;
-      background: #4A90D9;
-      border-radius: 50%;
-      border: 3px solid rgba(74,144,217,0.3);
+      position: absolute; bottom: 30px; left: 60px; width: 14px; height: 14px;
+      background: #4A90D9; border-radius: 50%; border: 3px solid rgba(74,144,217,0.3);
       box-shadow: 0 0 0 6px rgba(74,144,217,0.1);
     }
     .map-zoom {
-      position: absolute;
-      right: 12px;
-      bottom: 12px;
-      display: flex;
-      flex-direction: column;
-      background: #fff;
-      border-radius: 6px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      overflow: hidden;
+      position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column;
+      background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: hidden;
     }
     .map-zoom-btn {
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; color: #666;
-      cursor: pointer;
-      border-bottom: 1px solid #eee;
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #666; cursor: pointer; border-bottom: 1px solid #eee;
     }
     .map-zoom-btn:last-child { border-bottom: none; }
 
     /* Station info */
-    .station-info {
-      padding: 16px;
-      background: #fff;
-    }
-    .station-name {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1A1A1A;
-      margin-bottom: 8px;
-    }
-    .station-meta {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 4px;
-    }
-    .station-meta-item {
-      font-size: 12px;
-      color: #999;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .station-meta-icon {
-      font-size: 12px;
-    }
-    .station-address {
-      font-size: 12px;
-      color: #999;
-      margin-top: 6px;
-    }
+    .station-info { padding: 16px; background: #fff; }
+    .station-name { font-size: 18px; font-weight: 600; color: #1A1A1A; margin-bottom: 8px; }
+    .station-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
+    .station-meta-item { font-size: 12px; color: #999; display: flex; align-items: center; gap: 4px; }
+    .station-meta-icon { font-size: 12px; }
+    .station-address { font-size: 12px; color: #999; margin-top: 6px; }
 
-    /* CTA Button */
-    .station-cta {
-      padding: 12px 16px;
-      background: #fff;
-    }
+    /* CTA */
+    .station-cta { padding: 12px 16px; background: #fff; }
     .cta-btn {
-      width: 100%;
-      height: 44px;
-      background: linear-gradient(135deg, #00B894, #00A381);
-      border: none;
-      border-radius: 22px;
-      color: #fff;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      width: 100%; height: 44px; background: linear-gradient(135deg, #00B894, #00A381);
+      border: none; border-radius: 22px; color: #fff; font-size: 16px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     .cta-icon { font-size: 18px; }
 
-    /* Promotion section */
-    .promo-section {
-      padding: 0 16px;
-      margin-bottom: 4px;
-    }
-    .promo-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .promo-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1A1A1A;
-    }
-    .promo-more {
-      font-size: 12px;
-      color: #999;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
+    /* Promo section */
+    .promo-section { padding: 0 16px; margin-bottom: 4px; }
+    .promo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .promo-title { font-size: 15px; font-weight: 600; color: #1A1A1A; }
+    .promo-more { font-size: 12px; color: #999; display: flex; align-items: center; gap: 2px; }
 
-    /* Text ad style */
+    /* Text ad */
     .promo-ad-text {
-      background: linear-gradient(135deg, #FFF5F0, #FFEDE5);
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      position: relative;
+      background: linear-gradient(135deg, #FFF5F0, #FFEDE5); border-radius: 8px;
+      padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center;
+      justify-content: space-between; cursor: pointer; position: relative;
     }
     .promo-ad-text::after {
-      content: '›';
-      font-size: 16px;
-      color: #CC7A5C;
-      position: absolute;
-      right: 12px;
+      content: '›'; font-size: 16px; color: #CC7A5C; position: absolute; right: 12px;
     }
     .promo-ad-text-left { flex: 1; }
     .promo-ad-tag {
-      display: inline-block;
-      background: #FF6B35;
-      color: #fff;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      margin-bottom: 4px;
-      font-weight: 500;
+      display: inline-block; background: #FF6B35; color: #fff; font-size: 10px;
+      padding: 2px 6px; border-radius: 3px; margin-bottom: 4px; font-weight: 500;
     }
-    .promo-ad-desc {
-      font-size: 13px;
-      color: #E85D2A;
-      font-weight: 500;
-    }
+    .promo-ad-desc { font-size: 13px; color: #E85D2A; font-weight: 500; }
 
-    /* Image ad style */
+    /* Image ad */
     .promo-ad-image {
-      background: linear-gradient(135deg, #FFEDE5, #FFD9C4);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      position: relative;
+      background: linear-gradient(135deg, #FFEDE5, #FFD9C4); border-radius: 8px;
+      padding: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px;
+      cursor: pointer; position: relative;
     }
     .promo-ad-image::after {
-      content: '›';
-      font-size: 16px;
-      color: #CC7A5C;
-      position: absolute;
-      right: 12px;
+      content: '›'; font-size: 16px; color: #CC7A5C; position: absolute; right: 12px;
     }
     .ad-image-placeholder {
-      width: 72px;
-      height: 72px;
-      background: linear-gradient(135deg, #FF8C5A, #FF6B35);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 72px; height: 72px; background: linear-gradient(135deg, #FF8C5A, #FF6B35);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .ad-image-text {
-      color: #fff;
-      font-size: 11px;
-      font-weight: 600;
-      text-align: center;
-      line-height: 1.4;
-    }
+    .ad-image-text { color: #fff; font-size: 11px; font-weight: 600; text-align: center; line-height: 1.4; }
     .ad-image-content { flex: 1; }
-    .ad-image-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1A1A1A;
-      margin-bottom: 4px;
-    }
-    .ad-image-desc {
-      font-size: 12px;
-      color: #999;
-    }
+    .ad-image-title { font-size: 14px; font-weight: 600; color: #1A1A1A; margin-bottom: 4px; }
+    .ad-image-desc { font-size: 12px; color: #999; }
 
     /* Charging info */
-    .charging-info {
-      padding: 0 16px 16px;
-    }
-    .charging-info-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1A1A1A;
-      margin-bottom: 12px;
-    }
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .info-card {
-      background: #F7F8FA;
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-    }
-    .info-card-label {
-      font-size: 12px;
-      color: #999;
-      margin-bottom: 4px;
-    }
-    .info-card-value {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1A1A1A;
-    }
-    .info-card-unit {
-      font-size: 11px;
-      color: #999;
-      font-weight: 400;
-    }
+    .charging-info { padding: 0 16px 16px; }
+    .charging-info-title { font-size: 15px; font-weight: 600; color: #1A1A1A; margin-bottom: 12px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .info-card { background: #F7F8FA; border-radius: 8px; padding: 12px; text-align: center; }
+    .info-card-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+    .info-card-value { font-size: 16px; font-weight: 600; color: #1A1A1A; }
+    .info-card-unit { font-size: 11px; color: #999; font-weight: 400; }
 
     /* ===== CONFIG PANEL ===== */
     .config-panel {
-      flex: 1;
-      background: #fff;
-      border-radius: 8px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
+      flex: 1; background: #fff; border-radius: 8px; overflow-y: auto;
+      display: flex; flex-direction: column;
     }
     .config-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid #F0F0F0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
+      padding: 16px 20px; border-bottom: 1px solid #F0F0F0;
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
     }
-    .config-header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .config-header-left { display: flex; align-items: center; gap: 8px; }
     .config-page-icon {
-      width: 32px; height: 32px;
-      background: #F0F7F6;
-      border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      color: #0B7B6B;
-      font-size: 16px;
+      width: 32px; height: 32px; background: #F0F7F6; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; color: #0B7B6B; font-size: 16px;
     }
-    .config-page-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1A1A1A;
-    }
+    .config-page-title { font-size: 15px; font-weight: 600; color: #1A1A1A; }
     .config-add-btn {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 6px 14px;
-      background: #0B7B6B;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: background 0.15s;
+      display: flex; align-items: center; gap: 4px; padding: 6px 14px;
+      background: #0B7B6B; color: #fff; border: none; border-radius: 6px;
+      font-size: 13px; cursor: pointer; transition: background 0.15s;
     }
     .config-add-btn:hover { background: #0A6A5C; }
     .config-add-icon { font-size: 16px; }
 
-    .config-body {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-    }
+    .config-body { flex: 1; padding: 20px; overflow-y: auto; }
 
     /* Ad slot card */
-    .ad-slot {
-      border: 1px solid #E8E8E8;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      overflow: hidden;
-    }
+    .ad-slot { border: 1px solid #E8E8E8; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
     .ad-slot-header {
-      background: #FAFBFC;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #E8E8E8;
+      background: #FAFBFC; padding: 12px 16px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid #E8E8E8;
     }
-    .ad-slot-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1A1A1A;
-    }
-    .ad-slot-actions {
-      display: flex;
-      gap: 12px;
-    }
-    .ad-slot-action {
-      font-size: 13px;
-      color: #0B7B6B;
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
+    .ad-slot-title { font-size: 14px; font-weight: 600; color: #1A1A1A; }
+    .ad-slot-actions { display: flex; gap: 12px; }
+    .ad-slot-action { font-size: 13px; color: #0B7B6B; cursor: pointer; background: none; border: none; }
     .ad-slot-action:hover { text-decoration: underline; }
-    .ad-slot-body {
-      padding: 16px;
-    }
+    .ad-slot-body { padding: 16px; }
 
-    /* Form elements */
-    .form-row {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 16px;
-    }
+    /* Form */
+    .form-row { display: flex; align-items: flex-start; margin-bottom: 16px; }
     .form-row:last-child { margin-bottom: 0; }
-    .form-label {
-      width: 80px;
-      min-width: 80px;
-      font-size: 13px;
-      color: #666;
-      padding-top: 8px;
-    }
-    .form-control {
-      flex: 1;
-    }
+    .form-label { width: 80px; min-width: 80px; font-size: 13px; color: #666; padding-top: 8px; }
+    .form-control { flex: 1; }
 
-    /* Material type selector */
-    .material-types {
-      display: flex;
-      gap: 12px;
-    }
+    /* Material type */
+    .material-types { display: flex; gap: 12px; }
     .material-type {
-      padding: 6px 16px;
-      border: 1px solid #E8E8E8;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #666;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: #fff;
+      padding: 6px 16px; border: 1px solid #E8E8E8; border-radius: 6px;
+      font-size: 13px; color: #666; cursor: pointer; transition: all 0.15s; background: #fff;
     }
     .material-type:hover { border-color: #0B7B6B; color: #0B7B6B; }
-    .material-type.active {
-      border-color: #0B7B6B;
-      color: #0B7B6B;
-      background: #F0F7F6;
-    }
+    .material-type.active { border-color: #0B7B6B; color: #0B7B6B; background: #F0F7F6; }
 
-    /* Toggle switch */
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .toggle-label {
-      font-size: 13px;
-      color: #333;
-    }
+    /* Toggle */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+    .toggle-label { font-size: 13px; color: #333; }
     .toggle {
-      width: 40px;
-      height: 22px;
-      background: #DCDCDC;
-      border-radius: 11px;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.2s;
+      width: 40px; height: 22px; background: #DCDCDC; border-radius: 11px;
+      position: relative; cursor: pointer; transition: background 0.2s;
     }
     .toggle.on { background: #0B7B6B; }
     .toggle-knob {
-      width: 18px;
-      height: 18px;
-      background: #fff;
-      border-radius: 50%;
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      transition: left 0.2s;
+      width: 18px; height: 18px; background: #fff; border-radius: 50%;
+      position: absolute; top: 2px; left: 2px; transition: left 0.2s;
       box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
     .toggle.on .toggle-knob { left: 20px; }
 
     /* Text input */
     .text-input {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #E8E8E8;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #333;
-      outline: none;
-      transition: border-color 0.15s;
+      width: 100%; padding: 8px 12px; border: 1px solid #E8E8E8; border-radius: 6px;
+      font-size: 13px; color: #333; outline: none; transition: border-color 0.15s;
     }
     .text-input:focus { border-color: #0B7B6B; }
 
-    /* Image upload area */
+    /* Image upload */
     .image-upload {
-      border: 1px dashed #D9D9D9;
-      border-radius: 8px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: border-color 0.15s;
-      min-height: 100px;
+      border: 1px dashed #D9D9D9; border-radius: 8px; padding: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; transition: border-color 0.15s; min-height: 100px;
     }
     .image-upload:hover { border-color: #0B7B6B; }
     .upload-icon {
-      width: 40px; height: 40px;
-      background: #F5F5F5;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      color: #999;
-      font-size: 20px;
+      width: 40px; height: 40px; background: #F5F5F5; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; color: #999; font-size: 20px;
     }
-    .upload-text {
-      font-size: 13px;
-      color: #666;
-    }
-    .upload-hint {
-      font-size: 11px;
-      color: #BBB;
-    }
+    .upload-text { font-size: 13px; color: #666; }
+    .upload-hint { font-size: 11px; color: #BBB; }
 
     /* Activity select */
     .activity-select {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #E8E8E8;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #333;
-      outline: none;
-      background: #fff;
-      appearance: none;
+      width: 100%; padding: 8px 12px; border: 1px solid #E8E8E8; border-radius: 6px;
+      font-size: 13px; color: #333; outline: none; background: #fff; appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      cursor: pointer;
+      background-repeat: no-repeat; background-position: right 12px center; cursor: pointer;
     }
     .activity-select:focus { border-color: #0B7B6B; }
+    .form-hint { font-size: 11px; color: #BBB; margin-top: 4px; }
 
-    .form-hint {
-      font-size: 11px;
-      color: #BBB;
-      margin-top: 4px;
-    }
-
-    /* Activity linking info */
-    .activity-link-info {
-      margin-top: 12px;
-      padding: 12px;
-      background: #F7F8FA;
-      border-radius: 6px;
-      display: none;
-    }
+    /* Activity link info */
+    .activity-link-info { margin-top: 12px; padding: 12px; background: #F7F8FA; border-radius: 6px; display: none; }
     .activity-link-info.show { display: block; }
-    .activity-link-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
+    .activity-link-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
     .activity-link-row:last-child { margin-bottom: 0; }
-    .activity-link-label {
-      font-size: 12px;
-      color: #999;
-    }
-    .activity-link-value {
-      font-size: 12px;
-      color: #333;
-      font-weight: 500;
-    }
-    .activity-link-status {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-    }
-    .status-active {
-      background: #E6F7F1;
-      color: #0B7B6B;
-    }
-    .status-pending {
-      background: #FFF7E6;
-      color: #FA8C16;
-    }
+    .activity-link-label { font-size: 12px; color: #999; }
+    .activity-link-value { font-size: 12px; color: #333; font-weight: 500; }
+    .activity-link-status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+    .status-active { background: #E6F7F1; color: #0B7B6B; }
 
-    /* Ad preview area */
-    .ad-preview-area {
-      padding: 12px;
-      background: #F7F8FA;
-      border-radius: 6px;
-      margin-top: 12px;
-    }
-    .ad-preview-label {
-      font-size: 11px;
-      color: #999;
-      margin-bottom: 8px;
-    }
-    .ad-preview-content {
-      background: #fff;
-      border-radius: 6px;
-      padding: 10px;
-      border: 1px solid #E8E8E8;
-    }
-    .ad-preview-text {
-      font-size: 12px;
-      color: #E85D2A;
-      background: linear-gradient(135deg, #FFF5F0, #FFEDE5);
-      padding: 8px 12px;
-      border-radius: 4px;
-    }
-    .ad-preview-img {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ad-preview-thumb {
-      width: 48px; height: 48px;
-      background: linear-gradient(135deg, #FF8C5A, #FF6B35);
-      border-radius: 4px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .ad-preview-thumb-text {
-      font-size: 9px;
-      color: #fff;
-      font-weight: 600;
-      text-align: center;
-      line-height: 1.3;
-    }
-    .ad-preview-img-info { flex: 1; }
-    .ad-preview-img-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: #333;
-    }
-    .ad-preview-img-desc {
-      font-size: 11px;
-      color: #999;
-    }
-
-    /* Hidden sections */
+    /* Material type switching */
     .text-config { display: block; }
     .image-config { display: none; }
     .material-text .text-config { display: block; }
     .material-text .image-config { display: none; }
     .material-image .text-config { display: none; }
     .material-image .image-config { display: block; }
-
-    /* Phone preview toggle */
     .preview-ad-text { display: block; }
     .preview-ad-image { display: none; }
     .material-text .preview-ad-text { display: block; }
@@ -880,90 +365,35 @@
       </div>
       <div class="menu-section">
         <div class="menu-group-label">运营概览</div>
-        <div class="menu-item">
-          <span class="menu-item-icon">📊</span>
-          <span class="menu-item-text">查看门店经营</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">📋</span>
-          <span class="menu-item-text">工单管理</span>
-          <span class="menu-arrow">›</span>
-        </div>
+        <div class="menu-item"><span class="menu-item-icon">📊</span><span class="menu-item-text">查看门店经营</span></div>
+        <div class="menu-item"><span class="menu-item-icon">📋</span><span class="menu-item-text">工单管理</span><span class="menu-arrow">›</span></div>
       </div>
       <div class="menu-section">
         <div class="menu-group-label">运营管理</div>
-        <div class="menu-item">
-          <span class="menu-item-icon">🏷️</span>
-          <span class="menu-item-text">管理商品价格</span>
-          <span class="menu-arrow">›</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">⚡</span>
-          <span class="menu-item-text">管理充电站</span>
-          <span class="menu-arrow">›</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">💳</span>
-          <span class="menu-item-text">管理月卡</span>
-          <span class="menu-arrow">›</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">📢</span>
-          <span class="menu-item-text">管理营销活动</span>
-          <span class="menu-arrow">›</span>
-        </div>
+        <div class="menu-item"><span class="menu-item-icon">🏷️</span><span class="menu-item-text">管理商品价格</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item"><span class="menu-item-icon">⚡</span><span class="menu-item-text">管理充电站</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item"><span class="menu-item-icon">💳</span><span class="menu-item-text">管理月卡</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item"><span class="menu-item-icon">📢</span><span class="menu-item-text">管理营销活动</span><span class="menu-arrow">›</span></div>
       </div>
       <div class="menu-section">
         <div class="menu-group-label">数据中心</div>
-        <div class="menu-item">
-          <span class="menu-item-icon">📈</span>
-          <span class="menu-item-text">订单数据</span>
-          <span class="menu-arrow">›</span>
-        </div>
+        <div class="menu-item"><span class="menu-item-icon">📈</span><span class="menu-item-text">订单数据</span><span class="menu-arrow">›</span></div>
       </div>
       <div class="menu-section">
         <div class="menu-group-label">资产中心</div>
-        <div class="menu-item">
-          <span class="menu-item-icon">🏢</span>
-          <span class="menu-item-text">门店管理</span>
-          <span class="menu-arrow">›</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">🔌</span>
-          <span class="menu-item-text">设备管理</span>
-          <span class="menu-arrow">›</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">🔗</span>
-          <span class="menu-item-text">互联互通</span>
-          <span class="menu-arrow">›</span>
-        </div>
+        <div class="menu-item"><span class="menu-item-icon">🏢</span><span class="menu-item-text">门店管理</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item"><span class="menu-item-icon">🔌</span><span class="menu-item-text">设备管理</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item"><span class="menu-item-icon">🔗</span><span class="menu-item-text">互联互通</span><span class="menu-arrow">›</span></div>
       </div>
       <div class="menu-section">
         <div class="menu-group-label">财务中心</div>
-        <div class="menu-item">
-          <span class="menu-item-icon">💰</span>
-          <span class="menu-item-text">订单管理</span>
-          <span class="menu-arrow">›</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">📑</span>
-          <span class="menu-item-text">对账管理</span>
-          <span class="menu-arrow">›</span>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-icon">🧾</span>
-          <span class="menu-item-text">发票管理</span>
-          <span class="menu-arrow">›</span>
-        </div>
+        <div class="menu-item"><span class="menu-item-icon">💰</span><span class="menu-item-text">订单管理</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item"><span class="menu-item-icon">📑</span><span class="menu-item-text">对账管理</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item"><span class="menu-item-icon">🧾</span><span class="menu-item-text">发票管理</span><span class="menu-arrow">›</span></div>
       </div>
       <div class="menu-section">
         <div class="menu-group-label">组织管理</div>
-        <div class="menu-item">
-          <span class="menu-item-icon">👥</span>
-          <span class="menu-item-text">员工管理</span>
-          <span class="menu-arrow">›</span>
-        </div>
+        <div class="menu-item"><span class="menu-item-icon">👥</span><span class="menu-item-text">员工管理</span><span class="menu-arrow">›</span></div>
       </div>
       <div class="sidebar-footer">
         <div class="avatar">L</div>
@@ -973,13 +403,11 @@
 
     <!-- Main -->
     <div class="main">
-      <!-- Header -->
       <div class="header">
         <div class="header-back">←</div>
         <div class="header-title">充电站详情页广告位</div>
       </div>
 
-      <!-- Content -->
       <div class="content">
         <!-- Phone Preview -->
         <div class="phone-preview">
@@ -1000,8 +428,6 @@
                 <span class="phone-nav-icon">⬆</span>
               </div>
             </div>
-
-            <!-- Map -->
             <div class="phone-map">
               <div class="map-grid"></div>
               <div class="map-road map-road-h1"></div>
@@ -1018,8 +444,6 @@
                 <div class="map-zoom-btn">−</div>
               </div>
             </div>
-
-            <!-- Station Info -->
             <div class="station-info">
               <div class="station-name">特来电充电站</div>
               <div class="station-meta">
@@ -1028,20 +452,14 @@
               </div>
               <div class="station-address">北京市朝阳区望京街道望京SOHO B1层停车场</div>
             </div>
-
-            <!-- CTA -->
             <div class="station-cta">
               <button class="cta-btn"><span class="cta-icon">⚡</span> 去充电</button>
             </div>
-
-            <!-- Promo Section -->
             <div class="promo-section">
               <div class="promo-header">
                 <span class="promo-title">优惠活动</span>
                 <span class="promo-more">更多 ›</span>
               </div>
-
-              <!-- Text Ad -->
               <div class="preview-ad-text">
                 <div class="promo-ad-text">
                   <div class="promo-ad-text-left">
@@ -1050,13 +468,9 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Image Ad -->
               <div class="preview-ad-image">
                 <div class="promo-ad-image">
-                  <div class="ad-image-placeholder">
-                    <div class="ad-image-text">充电<br>优惠</div>
-                  </div>
+                  <div class="ad-image-placeholder"><div class="ad-image-text">充电<br>优惠</div></div>
                   <div class="ad-image-content">
                     <div class="ad-image-title">充电优惠</div>
                     <div class="ad-image-desc">限时特惠 全场服务费8折</div>
@@ -1064,27 +478,13 @@
                 </div>
               </div>
             </div>
-
-            <!-- Charging Info -->
             <div class="charging-info">
               <div class="charging-info-title">充电站信息</div>
               <div class="info-grid">
-                <div class="info-card">
-                  <div class="info-card-label">尖峰</div>
-                  <div class="info-card-value">1.2<span class="info-card-unit">元/度</span></div>
-                </div>
-                <div class="info-card">
-                  <div class="info-card-label">高峰</div>
-                  <div class="info-card-value">1.0<span class="info-card-unit">元/度</span></div>
-                </div>
-                <div class="info-card">
-                  <div class="info-card-label">平峰</div>
-                  <div class="info-card-value">0.8<span class="info-card-unit">元/度</span></div>
-                </div>
-                <div class="info-card">
-                  <div class="info-card-label">低谷</div>
-                  <div class="info-card-value">0.6<span class="info-card-unit">元/度</span></div>
-                </div>
+                <div class="info-card"><div class="info-card-label">尖峰</div><div class="info-card-value">1.2<span class="info-card-unit">元/度</span></div></div>
+                <div class="info-card"><div class="info-card-label">高峰</div><div class="info-card-value">1.0<span class="info-card-unit">元/度</span></div></div>
+                <div class="info-card"><div class="info-card-label">平峰</div><div class="info-card-value">0.8<span class="info-card-unit">元/度</span></div></div>
+                <div class="info-card"><div class="info-card-label">低谷</div><div class="info-card-value">0.6<span class="info-card-unit">元/度</span></div></div>
               </div>
             </div>
           </div>
@@ -1097,12 +497,8 @@
               <div class="config-page-icon">📢</div>
               <span class="config-page-title">充电站详情页广告位</span>
             </div>
-            <button class="config-add-btn">
-              <span class="config-add-icon">+</span>
-              <span>添加广告位</span>
-            </button>
+            <button class="config-add-btn"><span class="config-add-icon">+</span><span>添加广告位</span></button>
           </div>
-
           <div class="config-body">
             <!-- Ad Slot 1 -->
             <div class="ad-slot material-text" id="adSlot1">
@@ -1110,7 +506,7 @@
                 <span class="ad-slot-title">广告位 1</span>
                 <div class="ad-slot-actions">
                   <button class="ad-slot-action">复制</button>
-                  <button class="ad-slot-action" style="color: #FF4D4F;">删除</button>
+                  <button class="ad-slot-action" style="color:#FF4D4F;">删除</button>
                 </div>
               </div>
               <div class="ad-slot-body">
@@ -1118,8 +514,8 @@
                   <div class="form-label">素材类型</div>
                   <div class="form-control">
                     <div class="material-types">
-                      <div class="material-type active" data-type="text" onclick="setMaterialType(this, 'adSlot1')">文字</div>
-                      <div class="material-type" data-type="image" onclick="setMaterialType(this, 'adSlot1')">图片</div>
+                      <div class="material-type active" data-type="text" onclick="setMaterialType(this,'adSlot1')">文字</div>
+                      <div class="material-type" data-type="image" onclick="setMaterialType(this,'adSlot1')">图片</div>
                     </div>
                   </div>
                 </div>
@@ -1127,13 +523,9 @@
                   <div class="form-label">关联活动</div>
                   <div class="form-control toggle-row">
                     <span class="toggle-label">关联营销活动</span>
-                    <div class="toggle" onclick="toggleSwitch(this)">
-                      <div class="toggle-knob"></div>
-                    </div>
+                    <div class="toggle" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
                   </div>
                 </div>
-
-                <!-- Text config -->
                 <div class="text-config">
                   <div class="form-row">
                     <div class="form-label">文字内容</div>
@@ -1143,8 +535,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Image config -->
                 <div class="image-config">
                   <div class="form-row">
                     <div class="form-label">图片素材</div>
@@ -1157,7 +547,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-row">
                   <div class="form-label">选择活动</div>
                   <div class="form-control">
@@ -1168,24 +557,11 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="activity-link-info" id="linkInfo1">
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">活动名称</span>
-                    <span class="activity-link-value">限时服务费折扣</span>
-                  </div>
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">活动状态</span>
-                    <span class="activity-link-status status-active">进行中</span>
-                  </div>
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">活动时间</span>
-                    <span class="activity-link-value">2025/06/01 - 2025/06/30</span>
-                  </div>
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">优惠内容</span>
-                    <span class="activity-link-value">全场服务费8折</span>
-                  </div>
+                  <div class="activity-link-row"><span class="activity-link-label">活动名称</span><span class="activity-link-value">限时服务费折扣</span></div>
+                  <div class="activity-link-row"><span class="activity-link-label">活动状态</span><span class="activity-link-status status-active">进行中</span></div>
+                  <div class="activity-link-row"><span class="activity-link-label">活动时间</span><span class="activity-link-value">2025/06/01 - 2025/06/30</span></div>
+                  <div class="activity-link-row"><span class="activity-link-label">优惠内容</span><span class="activity-link-value">全场服务费8折</span></div>
                 </div>
               </div>
             </div>
@@ -1196,7 +572,7 @@
                 <span class="ad-slot-title">广告位 2</span>
                 <div class="ad-slot-actions">
                   <button class="ad-slot-action">复制</button>
-                  <button class="ad-slot-action" style="color: #FF4D4F;">删除</button>
+                  <button class="ad-slot-action" style="color:#FF4D4F;">删除</button>
                 </div>
               </div>
               <div class="ad-slot-body">
@@ -1204,8 +580,8 @@
                   <div class="form-label">素材类型</div>
                   <div class="form-control">
                     <div class="material-types">
-                      <div class="material-type" data-type="text" onclick="setMaterialType(this, 'adSlot2')">文字</div>
-                      <div class="material-type active" data-type="image" onclick="setMaterialType(this, 'adSlot2')">图片</div>
+                      <div class="material-type" data-type="text" onclick="setMaterialType(this,'adSlot2')">文字</div>
+                      <div class="material-type active" data-type="image" onclick="setMaterialType(this,'adSlot2')">图片</div>
                     </div>
                   </div>
                 </div>
@@ -1213,13 +589,9 @@
                   <div class="form-label">关联活动</div>
                   <div class="form-control toggle-row">
                     <span class="toggle-label">关联营销活动</span>
-                    <div class="toggle on" onclick="toggleSwitch(this)">
-                      <div class="toggle-knob"></div>
-                    </div>
+                    <div class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
                   </div>
                 </div>
-
-                <!-- Text config -->
                 <div class="text-config">
                   <div class="form-row">
                     <div class="form-label">文字内容</div>
@@ -1229,8 +601,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Image config -->
                 <div class="image-config">
                   <div class="form-row">
                     <div class="form-label">图片素材</div>
@@ -1243,7 +613,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="form-row">
                   <div class="form-label">选择活动</div>
                   <div class="form-control">
@@ -1254,24 +623,11 @@
                     </select>
                   </div>
                 </div>
-
                 <div class="activity-link-info show" id="linkInfo2">
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">活动名称</span>
-                    <span class="activity-link-value">限时服务费折扣</span>
-                  </div>
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">活动状态</span>
-                    <span class="activity-link-status status-active">进行中</span>
-                  </div>
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">活动时间</span>
-                    <span class="activity-link-value">2025/06/01 - 2025/06/30</span>
-                  </div>
-                  <div class="activity-link-row">
-                    <span class="activity-link-label">优惠内容</span>
-                    <span class="activity-link-value">全场服务费8折</span>
-                  </div>
+                  <div class="activity-link-row"><span class="activity-link-label">活动名称</span><span class="activity-link-value">限时服务费折扣</span></div>
+                  <div class="activity-link-row"><span class="activity-link-label">活动状态</span><span class="activity-link-status status-active">进行中</span></div>
+                  <div class="activity-link-row"><span class="activity-link-label">活动时间</span><span class="activity-link-value">2025/06/01 - 2025/06/30</span></div>
+                  <div class="activity-link-row"><span class="activity-link-label">优惠内容</span><span class="activity-link-value">全场服务费8折</span></div>
                 </div>
               </div>
             </div>
@@ -1283,13 +639,11 @@
 
   <script>
     function setMaterialType(el, slotId) {
-      const slot = document.getElementById(slotId);
-      const types = slot.querySelectorAll('.material-type');
-      types.forEach(t => t.classList.remove('active'));
+      var slot = document.getElementById(slotId);
+      var types = slot.querySelectorAll('.material-type');
+      types.forEach(function(t) { t.classList.remove('active'); });
       el.classList.add('active');
-
-      const type = el.dataset.type;
-      if (type === 'text') {
+      if (el.dataset.type === 'text') {
         slot.classList.remove('material-image');
         slot.classList.add('material-text');
       } else {
@@ -1297,11 +651,10 @@
         slot.classList.add('material-image');
       }
     }
-
     function toggleSwitch(el) {
       el.classList.toggle('on');
-      const slot = el.closest('.ad-slot');
-      const linkInfo = slot.querySelector('.activity-link-info');
+      var slot = el.closest('.ad-slot');
+      var linkInfo = slot.querySelector('.activity-link-info');
       if (el.classList.contains('on')) {
         linkInfo.classList.add('show');
       } else {
