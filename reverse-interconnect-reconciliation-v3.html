@@ -55,6 +55,7 @@ select.filter-control{appearance:none;-webkit-appearance:none;background-image:u
 .btn{height:32px;padding:0 16px;border-radius:4px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;border:none;white-space:nowrap;font-family:inherit}
 .btn-primary{background:#0B7B6B;color:#fff;border:1px solid #0B7B6B}
 .btn-primary:hover{background:#096B5D}
+.btn-primary:disabled{background:#d9d9d9;border-color:#d9d9d9;color:#fff;cursor:not-allowed}
 .btn-default{background:#fff;color:#555;border:1px solid #d9d9d9}
 .btn-default:hover{border-color:#0B7B6B;color:#0B7B6B}
 .btn-sm{height:28px;padding:0 12px;font-size:12px}
@@ -458,9 +459,10 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
     <!-- 筛选区域 -->
     <div style="padding:12px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:16px;flex-shrink:0">
       <span style="font-size:13px;color:#555">到账时间：</span>
-      <input type="date" class="filter-control" id="flowDateStart" style="width:140px" onchange="filterFlowRows()">
+      <input type="date" class="filter-control" id="flowDateStart" style="width:140px">
       <span style="font-size:13px;color:#aaa">~</span>
-      <input type="date" class="filter-control" id="flowDateEnd" style="width:140px" onchange="filterFlowRows()">
+      <input type="date" class="filter-control" id="flowDateEnd" style="width:140px">
+      <button class="btn btn-primary btn-sm" onclick="filterFlowRows()">搜索</button>
       <button class="btn btn-default btn-sm" onclick="clearFlowFilter()">重置</button>
     </div>
 
@@ -793,13 +795,13 @@ function showToast(msg) {
 // ======= 多笔流水认款 =======
 // 模拟流水数据
 const flowData = [
-  { id:'FL20260601001', amount:150000.00, time:'2026-06-01 10:23:45', account:'招商银行-尾号8866' },
-  { id:'FL20260601002', amount:200000.00, time:'2026-06-02 09:15:32', account:'工商银行-尾号5521' },
-  { id:'FL20260602001', amount:180000.00, time:'2026-06-03 14:08:11', account:'招商银行-尾号8866' },
-  { id:'FL20260603001', amount:120000.00, time:'2026-06-05 16:42:28', account:'建设银行-尾号3377' },
-  { id:'FL20260604001', amount:54410.78,  time:'2026-06-08 11:30:05', account:'工商银行-尾号5521' },
-  { id:'FL20260605001', amount:80000.00,  time:'2026-06-10 09:55:17', account:'招商银行-尾号8866' },
-  { id:'FL20260606001', amount:65000.00,  time:'2026-06-12 15:20:43', account:'农业银行-尾号9912' },
+  { id:'FL20260601001', amount:150000.00, time:'2026-06-01 10:23:45', account:'6214850284937762' },
+  { id:'FL20260601002', amount:200000.00, time:'2026-06-02 09:15:32', account:'6222081812049553' },
+  { id:'FL20260602001', amount:180000.00, time:'2026-06-03 14:08:11', account:'6214850284937762' },
+  { id:'FL20260603001', amount:120000.00, time:'2026-06-05 16:42:28', account:'6236681905847391' },
+  { id:'FL20260604001', amount:54410.78,  time:'2026-06-08 11:30:05', account:'6222081812049553' },
+  { id:'FL20260605001', amount:80000.00,  time:'2026-06-10 09:55:17', account:'6214850284937762' },
+  { id:'FL20260606001', amount:65000.00,  time:'2026-06-12 15:20:43', account:'6228480288541024' },
 ];
 
 let currentFlowReceivable = 0;
