@@ -89,8 +89,7 @@ select.filter-control{appearance:none;-webkit-appearance:none;background-image:u
 .op-link:hover{text-decoration:underline}
 .op-sep{color:#e8e8e8}
 
-/* MORE DROPDOWN */
-.more-wrap{position:relative;display:inline-block}
+/* MORE DROPDOWN — global singleton, appended to body to escape table stacking context */
 .more-menu{position:fixed;background:#fff;border:1px solid #d9d9d9;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:9999;min-width:140px;display:none;white-space:nowrap}
 .more-menu.open{display:block}
 .more-item{padding:8px 14px;font-size:13px;color:#333;cursor:pointer;transition:background .12s,color .12s}
@@ -493,6 +492,9 @@ textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
 
 <div class="toast" id="toast"></div>
 
+<!-- 全局"更多"浮层，挂在 body 上脱离表格 stacking context -->
+<div class="more-menu" id="globalMoreMenu"></div>
+
 <script>
 // ======= 列定义（无补贴列）=======
 function buildCols(dateLabel, withFee, withInvoice, withBillDate) {
@@ -563,10 +565,14 @@ function invoiceBadge(s)   { const m={已开票:'badge-green',开票中:'badge-b
 function statusBadge(s)    { return `<span class="badge badge-blue">${s}</span>`; }
 function invoice2Badge(s)  { const m={已开票:'badge-green',开票中:'badge-blue',待开票:'badge-gray'};    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
 function paymentBadge(s)   { const m={已支付:'badge-green',未支付:'badge-gray'};                         return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+// 全局"更多"菜单：当前触发元素引用，用于关闭时还原
+let _moreAnchor = null;
+
 function renderOps(ops, rowId) {
   return '<div class="ops">'+ops.map((o,i)=>{
     if (o === '更多') {
-      return `<div class="more-wrap"><span class="op-link" onclick="toggleMoreMenu(this)">更多</span><div class="more-menu"><div class="more-item" onclick="showToast('认款申诉')">认款申诉</div><div class="more-item" onclick="showToast('转账异常处理')">转账异常处理</div><div class="more-item" onclick="openFlowModal('${rowId}')">多笔流水认款</div></div></div>`;
+      // data-rowid 供菜单内项目使用；不再在行内渲染 menu DOM
+      return `<span class="op-link" data-more="1" data-rowid="${rowId}" onclick="toggleMoreMenu(this)">更多</span>`;
     }
     const handler = (o === '编辑' && rowId) ? `openSubsidyEditModal('${rowId}')` : `showToast('${o}')`;
     return `<span class="op-link" onclick="${handler}">${o}</span>${i<ops.length-1?'<span class="op-sep">|</span>':''}`;
@@ -574,23 +580,40 @@ function renderOps(ops, rowId) {
 }
 
 function toggleMoreMenu(el) {
-  const menu = el.nextElementSibling;
-  const isOpen = menu.classList.contains('open');
-  // 关闭所有已打开的菜单
-  document.querySelectorAll('.more-menu.open').forEach(m => m.classList.remove('open'));
+  const menu = document.getElementById('globalMoreMenu');
+  const isOpen = menu.classList.contains('open') && _moreAnchor === el;
+
+  // 先关闭
+  menu.classList.remove('open');
+  _moreAnchor = null;
+
   if (!isOpen) {
-    // 计算触发元素的位置
+    const rowId = el.dataset.rowid;
+    // 填充菜单项（通用账单专属）
+    menu.innerHTML =
+      `<div class="more-item" onclick="showToast('认款申诉');closeMoreMenu()">认款申诉</div>` +
+      `<div class="more-item" onclick="showToast('转账异常处理');closeMoreMenu()">转账异常处理</div>` +
+      `<div class="more-item" onclick="openFlowModal('${rowId}');closeMoreMenu()">多笔流水认款</div>`;
+
+    // 定位到触发元素正下方（右对齐）
     const rect = el.getBoundingClientRect();
-    menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.top  = (rect.bottom + 4) + 'px';
+    menu.style.left = 'auto';
     menu.style.right = (window.innerWidth - rect.right) + 'px';
     menu.classList.add('open');
+    _moreAnchor = el;
   }
 }
 
-// 点击其他地方关闭菜单
+function closeMoreMenu() {
+  document.getElementById('globalMoreMenu').classList.remove('open');
+  _moreAnchor = null;
+}
+
+// 点击外部关闭
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('.more-wrap')) {
-    document.querySelectorAll('.more-menu.open').forEach(m => m.classList.remove('open'));
+  if (!e.target.closest('#globalMoreMenu') && !e.target.dataset.more) {
+    closeMoreMenu();
   }
 });
 
