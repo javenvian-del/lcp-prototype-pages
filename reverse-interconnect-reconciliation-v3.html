@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>反向互联对账 v3 — 充电网络管理系统</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;font-size:14px;color:#333;background:#F0F2F0;height:100vh;overflow:hidden}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:188px;min-width:188px;background:#1A3530;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.sidebar::-webkit-scrollbar{width:0}
+.sidebar-logo{padding:14px 16px;display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:#fff;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.logo-icon{width:28px;height:28px;background:#0B7B6B;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-section{padding:6px 0}
+.menu-group-label{padding:10px 16px 4px;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.5px;user-select:none}
+.menu-item{display:flex;align-items:center;padding:9px 16px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.65);gap:8px;user-select:none;transition:background .15s,color .15s}
+.menu-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.menu-item.active{background:#0B7B6B;color:#fff}
+.menu-item-text{flex:1}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:8px;margin-top:auto;flex-shrink:0}
+.avatar{width:28px;height:28px;border-radius:50%;background:#0B7B6B;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex-shrink:0}
+.avatar-name{font-size:13px;color:rgba(255,255,255,.65)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:46px;background:#fff;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;padding:0 24px;font-size:14px;font-weight:500;color:#222;flex-shrink:0;gap:6px}
+.topbar-sep{color:#ddd;font-weight:400}
+.topbar-sub{color:#888;font-weight:400}
+.page-body{flex:1;overflow-y:auto;padding:16px 24px 40px}
+.page-body::-webkit-scrollbar{width:5px}
+.page-body::-webkit-scrollbar-thumb{background:#d9d9d9;border-radius:3px}
+
+/* TABS */
+.mode-tabs{display:flex;margin-bottom:16px;border-bottom:2px solid #e8e8e8}
+.mode-tab{padding:10px 24px;font-size:14px;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;user-select:none}
+.mode-tab:hover{color:#0B7B6B}
+.mode-tab.active{color:#0B7B6B;font-weight:600;border-bottom-color:#0B7B6B}
+
+/* FILTER */
+.filter-card{background:#fff;border-radius:4px;padding:16px 20px;margin-bottom:12px}
+.filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:16px 20px}
+.filter-field{display:flex;align-items:center;gap:8px}
+.filter-label{font-size:13px;color:#555;white-space:nowrap}
+.filter-control{height:32px;border:1px solid #d9d9d9;border-radius:4px;padding:0 10px;font-size:13px;color:#333;outline:none;background:#fff;transition:border-color .15s;font-family:inherit}
+.filter-control:focus{border-color:#0B7B6B;box-shadow:0 0 0 2px rgba(11,123,107,.08)}
+select.filter-control{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;cursor:pointer}
+.filter-control::placeholder{color:#bbb}
+.date-sep{font-size:13px;color:#aaa}
+.filter-actions{display:flex;gap:8px;margin-left:auto}
+
+/* BUTTONS */
+.btn{height:32px;padding:0 16px;border-radius:4px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;border:none;white-space:nowrap;font-family:inherit}
+.btn-primary{background:#0B7B6B;color:#fff;border:1px solid #0B7B6B}
+.btn-primary:hover{background:#096B5D}
+.btn-default{background:#fff;color:#555;border:1px solid #d9d9d9}
+.btn-default:hover{border-color:#0B7B6B;color:#0B7B6B}
+.btn-sm{height:28px;padding:0 12px;font-size:12px}
+
+/* TABLE */
+.table-card{background:#fff;border-radius:4px;overflow:hidden}
+.table-toolbar{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0}
+.toolbar-link{font-size:13px;color:#0B7B6B;cursor:pointer;display:flex;align-items:center;gap:4px}
+.toolbar-link:hover{text-decoration:underline}
+.table-wrap{overflow-x:auto}
+.table-wrap::-webkit-scrollbar{height:5px}
+.table-wrap::-webkit-scrollbar-thumb{background:#d9d9d9;border-radius:3px}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table thead tr{border-bottom:1px solid #f0f0f0;background:#fafafa}
+.data-table thead th{padding:10px;text-align:left;font-weight:500;color:#666;white-space:nowrap;border-right:1px solid #f5f5f5}
+.data-table thead th:last-child{border-right:none;position:sticky;right:0;background:#fafafa;z-index:3}
+.data-table tbody tr{border-bottom:1px solid #f5f5f5;transition:background .12s}
+.data-table tbody tr:hover{background:#f7fffd}
+.data-table tbody td{padding:10px;color:#333;vertical-align:middle;white-space:nowrap;border-right:1px solid #f5f5f5}
+.data-table tbody td:last-child{border-right:none;position:sticky;right:0;background:#fff;box-shadow:-2px 0 5px rgba(0,0,0,.06);z-index:1}
+.data-table tbody tr:hover td:last-child{background:#f7fffd}
+.row-check{width:16px;height:16px;border:1.5px solid #d9d9d9;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
+.row-check.checked{background:#0B7B6B;border-color:#0B7B6B}
+.row-check.checked::after{content:'';width:9px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:12px;white-space:nowrap}
+.badge-blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
+.badge-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.badge-orange{background:#fff7e6;color:#d48806;border:1px solid #ffd591}
+.badge-gray{background:#f5f5f5;color:#aaa;border:1px solid #e8e8e8}
+.ops{display:flex;gap:6px;align-items:center}
+.op-link{font-size:12px;color:#0B7B6B;cursor:pointer}
+.op-link:hover{text-decoration:underline}
+.op-sep{color:#e8e8e8}
+
+/* MORE DROPDOWN */
+.more-wrap{position:relative;display:inline-block}
+.more-menu{position:fixed;background:#fff;border:1px solid #d9d9d9;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:9999;min-width:140px;display:none;white-space:nowrap}
+.more-menu.open{display:block}
+.more-item{padding:8px 14px;font-size:13px;color:#333;cursor:pointer;transition:background .12s,color .12s}
+.more-item:hover{background:#f0faf8;color:#0B7B6B}
+
+/* PAGINATION */
+.pagination-bar{padding:14px 16px;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.page-info{font-size:13px;color:#888}
+.page-info span{color:#333;font-weight:500}
+.page-controls{display:flex;align-items:center;gap:6px}
+.page-btn{height:28px;min-width:28px;padding:0 8px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;font-size:13px;color:#555;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .12s;font-family:inherit}
+.page-btn:hover:not(:disabled){border-color:#0B7B6B;color:#0B7B6B}
+.page-btn.active{background:#0B7B6B;border-color:#0B7B6B;color:#fff;cursor:default}
+.page-btn:disabled{color:#ccc;cursor:not-allowed}
+.page-size-select{height:28px;border:1px solid #d9d9d9;border-radius:4px;padding:0 22px 0 8px;font-size:13px;color:#555;outline:none;cursor:pointer;font-family:inherit;appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 7px center}
+.page-jump{display:flex;align-items:center;gap:6px;font-size:13px;color:#888}
+.page-jump input{width:48px;height:28px;border:1px solid #d9d9d9;border-radius:4px;padding:0 8px;font-size:13px;text-align:center;outline:none;font-family:inherit}
+
+/* 补贴单据空状态 */
+.empty-hint{padding:48px 0;text-align:center;color:#bbb;font-size:13px}
+.empty-hint svg{display:block;margin:0 auto 12px;opacity:.35}
+
+/* MODAL OVERLAY */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.m-card{background:#fff;border-radius:4px;width:520px;box-shadow:0 8px 40px rgba(0,0,0,.18);display:flex;flex-direction:column}
+.m-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.m-title{font-size:15px;font-weight:600;color:#222}
+.m-close{width:24px;height:24px;border:none;background:none;cursor:pointer;font-size:18px;color:#aaa;display:flex;align-items:center;justify-content:center;border-radius:3px;transition:background .12s}
+.m-close:hover{background:#f5f5f5;color:#555}
+.m-body{padding:24px 28px 16px}
+.m-footer{padding:14px 20px;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.m-row{display:flex;align-items:flex-start;margin-bottom:20px}
+.m-row:last-child{margin-bottom:4px}
+.m-label{width:100px;min-width:100px;font-size:13px;color:#555;text-align:right;padding-right:10px;flex-shrink:0;padding-top:7px;line-height:1.4}
+.m-label .req{color:#D93025;margin-right:2px}
+.m-content{flex:1;min-width:0}
+.m-ctrl{width:100%;height:32px;border:1px solid #d9d9d9;border-radius:4px;padding:0 10px;font-size:13px;color:#333;outline:none;background:#fff;transition:border-color .15s;font-family:inherit}
+.m-ctrl:focus{border-color:#0B7B6B;box-shadow:0 0 0 2px rgba(11,123,107,.08)}
+.m-ctrl::placeholder{color:#bbb}
+select.m-ctrl{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;cursor:pointer}
+textarea.m-ctrl{height:72px;resize:vertical;padding-top:7px}
+.m-date-row{display:flex;align-items:center;gap:8px}
+.m-date-row .m-ctrl{width:0;flex:1}
+.m-hint{font-size:12px;color:#aaa;margin-top:5px}
+
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 20px;border-radius:4px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+
+/* SEARCH SELECT */
+.ss-wrap{position:relative}
+.ss-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #d9d9d9;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.1);z-index:200;max-height:180px;overflow-y:auto;display:none}
+.ss-dropdown.open{display:block}
+.ss-option{padding:7px 12px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap}
+.ss-option:hover,.ss-option.highlighted{background:#f0faf8;color:#0B7B6B}
+.ss-option.selected{color:#0B7B6B;font-weight:500}
+.ss-empty{padding:8px 12px;font-size:13px;color:#bbb;text-align:center}
+
+/* UPLOAD ATTACHMENT */
+.upload-area{border:1.5px dashed #d9d9d9;border-radius:4px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
+.upload-area:hover{border-color:#0B7B6B;background:#f0faf8}
+.upload-hint-main{font-size:13px;color:#666;margin-top:6px}
+.upload-hint-sub{font-size:12px;color:#bbb;margin-top:3px}
+.file-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.file-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#fafafa;border:1px solid #f0f0f0;border-radius:4px}
+.file-thumb{width:32px;height:32px;object-fit:cover;border-radius:3px;flex-shrink:0;border:1px solid #f0f0f0}
+.file-icon{width:32px;height:32px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:-.5px}
+.file-info{flex:1;min-width:0}
+.file-name{font-size:13px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:11px;color:#aaa;margin-top:1px}
+.file-del{width:20px;height:20px;border:none;background:none;cursor:pointer;color:#ccc;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;transition:color .12s}
+.file-del:hover{color:#D93025}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 5V11M5.5 6.5L8 5L10.5 6.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+    充电网络管理系统
+  </div>
+  <div class="menu-section">
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">场站管理</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">客服工具</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2L13 5.8L10 8.7L10.7 13L7 11L3.3 13L4 8.7L1 5.8L5.2 5.2L7 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span class="menu-item-text">增长工具</span></div>
+    <div class="menu-group-label">账务管理</div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">加盟商分账管理</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">加盟站对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">自建站对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">试点站对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">互联互通对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">互联互通余额管理</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">退款进度查询</span></div>
+    <div class="menu-item active"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L6 4.5L9 7.5L11.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="menu-item-text">反向互联对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">BD数据看板</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">基础资料</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 7h6M4 4.5h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="menu-item-text">系统监控</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 2v10M7 5v7M10 3v9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">下载管理</span></div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">范</div>
+    <span class="avatar-name">范文杰</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    账务管理 <span class="topbar-sep">/</span> <span class="topbar-sub">反向互联对账</span>
+  </div>
+  <div class="page-body">
+
+    <!-- TABS -->
+    <div class="mode-tabs">
+      <div class="mode-tab active" id="tab-trade"    onclick="switchMode('trade')">通用账单</div>
+      <div class="mode-tab"        id="tab-subsidy"  onclick="switchMode('subsidy')">补贴单据</div>
+    </div>
+
+    <!-- ===== 通用账单筛选 ===== -->
+    <div class="filter-card" id="filter-trade">
+      <div class="filter-row">
+        <div class="filter-field">
+          <span class="filter-label">反向互联平台商：</span>
+          <select class="filter-control" style="width:200px">
+            <option value="">全部</option>
+            <option>【反向互联渠道平台】-极氪</option>
+            <option>招商局大厦</option>
+            <option>【反向互联渠道平台】-小米</option>
+            <option>重庆数字交通产业集团</option>
+            <option>【反向互联渠道平台】-小桔</option>
+            <option>无锡市政公用新能源科技</option>
+            <option>【反向互联渠道平台】-星星</option>
+            <option>吉林省平台</option>
+            <option>上海</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">出账周期：</span>
+          <select class="filter-control" style="width:110px">
+            <option value="">全部</option>
+            <option>日</option>
+            <option selected>月</option>
+            <option>季度</option>
+            <option>年度</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">账期范围：</span>
+          <input type="date" class="filter-control" value="2026-05-01" style="width:140px">
+          <span class="date-sep">~</span>
+          <input type="date" class="filter-control" value="2026-05-31" style="width:140px">
+        </div>
+      </div>
+      <div class="filter-row" style="margin-top:10px">
+        <div class="filter-field">
+          <span class="filter-label">出账日期：</span>
+          <input type="date" class="filter-control" style="width:140px">
+          <span class="date-sep">~</span>
+          <input type="date" class="filter-control" style="width:140px">
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">结算状态：</span>
+          <select class="filter-control" style="width:130px">
+            <option value="">全部</option>
+            <option>未结算</option>
+            <option>结算中</option>
+            <option>已结算</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary">搜索</button>
+          <button class="btn btn-default">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 补贴单据筛选 ===== -->
+    <div class="filter-card" id="filter-subsidy" style="display:none">
+      <div class="filter-row">
+        <div class="filter-field">
+          <span class="filter-label">补贴周期：</span>
+          <input type="date" class="filter-control" style="width:140px">
+          <span class="date-sep">~</span>
+          <input type="date" class="filter-control" style="width:140px">
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">开票状态：</span>
+          <select class="filter-control" style="width:120px">
+            <option value="">全部</option>
+            <option>待开票</option>
+            <option>开票中</option>
+            <option>已开票</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">支付状态：</span>
+          <select class="filter-control" style="width:120px">
+            <option value="">全部</option>
+            <option>已支付</option>
+            <option>未支付</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary">搜索</button>
+          <button class="btn btn-default">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 通用账单表格 ===== -->
+    <div class="table-card" id="table-trade">
+      <div class="table-toolbar">
+        <button class="btn btn-default btn-sm" onclick="showToast('发起结算')">结算</button>
+        <span class="toolbar-link" onclick="showToast('打开下载任务')">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 11h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          我的下载任务
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" style="min-width:2420px">
+          <thead><tr id="thead-trade"></tr></thead>
+          <tbody id="tbody-trade"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="page-info">共 <span>341</span> 条</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <select class="page-size-select"><option>10条/页</option><option>20条/页</option><option>50条/页</option></select>
+          <div class="page-controls">
+            <button class="page-btn" disabled>‹</button>
+            <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn">…</button><button class="page-btn">35</button>
+            <button class="page-btn">›</button>
+          </div>
+          <div class="page-jump">前往 <input type="number" min="1" value="1"> 页</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 补贴单据表格 ===== -->
+    <div class="table-card" id="table-subsidy" style="display:none">
+      <div class="table-toolbar">
+        <button class="btn btn-primary btn-sm" onclick="openSubsidyModal()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          新建补贴单据
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" style="min-width:1860px">
+          <thead><tr id="thead-subsidy"></tr></thead>
+          <tbody id="tbody-subsidy"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="page-info">共 <span>5</span> 条</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <select class="page-size-select"><option>10条/页</option><option>20条/页</option><option>50条/页</option></select>
+          <div class="page-controls">
+            <button class="page-btn" disabled>‹</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn" disabled>›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- /app -->
+
+<!-- ===== 新建/编辑补贴单据弹窗 ===== -->
+<div class="modal-overlay" id="subsidy-modal-overlay" onclick="overlayClick(event)">
+  <div class="m-card" style="width:560px" onclick="event.stopPropagation()">
+    <div class="m-header">
+      <span class="m-title" id="subsidyModalTitle">新建补贴单据</span>
+      <button class="m-close" onclick="closeSubsidyModal()">×</button>
+    </div>
+    <div class="m-body">
+
+      <div class="m-row">
+        <div class="m-label"><span class="req">*</span>反向运营商：</div>
+        <div class="m-content">
+          <div class="ss-wrap">
+            <input type="text" class="m-ctrl" id="operatorInput" placeholder="搜索或选择反向运营商…" autocomplete="off"
+              oninput="filterOperators()" onfocus="openSS()" onblur="closeSS()">
+            <div class="ss-dropdown" id="ssDropdown"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="m-row">
+        <div class="m-label"><span class="req">*</span>补贴周期：</div>
+        <div class="m-content">
+          <div class="m-date-row">
+            <input type="date" class="m-ctrl" id="periodStart">
+            <span style="color:#aaa;font-size:13px;flex-shrink:0">~</span>
+            <input type="date" class="m-ctrl" id="periodEnd">
+          </div>
+          <div class="m-hint">补贴周期决定该单据的账期范围，仅用于记录，不影响现有账单数据</div>
+        </div>
+      </div>
+
+      <div class="m-row">
+        <div class="m-label"><span class="req">*</span>补贴金额：</div>
+        <div class="m-content" style="display:flex;align-items:center;gap:8px">
+          <input type="number" class="m-ctrl" id="subsidyAmount" style="flex:1" min="0" step="0.01" placeholder="请输入金额">
+          <span style="font-size:13px;color:#888;flex-shrink:0">元</span>
+        </div>
+      </div>
+
+      <div class="m-row">
+        <div class="m-label">上传附件：</div>
+        <div class="m-content">
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('subsidyFileInput').click()">
+            <input type="file" id="subsidyFileInput" multiple accept=".xlsx,.xls,.csv,.png,.jpg,.jpeg,.gif,.pdf" style="display:none" onchange="handleFileChange(event)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;margin:0 auto"><path d="M12 15V5M8 9l4-4 4 4" stroke="#bbb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1" stroke="#bbb" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <div class="upload-hint-main">点击上传附件</div>
+            <div class="upload-hint-sub">支持 Excel、CSV、图片（PNG / JPG）等格式</div>
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+      </div>
+
+      <div class="m-row" style="margin-bottom:4px">
+        <div class="m-label">备注：</div>
+        <div class="m-content">
+          <textarea class="m-ctrl" id="subsidyRemark" placeholder="选填，可补充说明补贴来源或依据"></textarea>
+        </div>
+      </div>
+
+    </div>
+    <div class="m-footer">
+      <button class="btn btn-default" onclick="closeSubsidyModal()">取 消</button>
+      <button class="btn btn-primary" id="subsidySubmitBtn" onclick="handleSubsidySubmit()">确 定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 多笔流水认款弹窗 ===== -->
+<div class="modal-overlay" id="flow-modal-overlay" onclick="flowOverlayClick(event)">
+  <div class="m-card" style="width:780px;max-height:85vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="m-header">
+      <span class="m-title">多笔流水认款</span>
+      <button class="m-close" onclick="closeFlowModal()">×</button>
+    </div>
+    
+    <!-- 顶部金额汇总 -->
+    <div style="padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:32px;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;color:#888">应收金额：</span>
+        <span id="flowReceivable" style="font-size:18px;font-weight:600;color:#222">¥0.00</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;color:#888">已勾选金额：</span>
+        <span id="flowCheckedAmount" style="font-size:18px;font-weight:600;color:#0B7B6B">¥0.00</span>
+      </div>
+      <div id="flowMatchHint" style="margin-left:auto;font-size:12px;color:#aaa;display:none">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:-2px;margin-right:4px"><circle cx="7" cy="7" r="6" stroke="#52c41a" stroke-width="1.3"/><path d="M4.5 7l2 2 3.5-3.5" stroke="#52c41a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        金额匹配，可以提交
+      </div>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div style="padding:12px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:16px;flex-shrink:0">
+      <span style="font-size:13px;color:#555">到账时间：</span>
+      <input type="date" class="filter-control" id="flowDateStart" style="width:140px" onchange="filterFlowRows()">
+      <span style="font-size:13px;color:#aaa">~</span>
+      <input type="date" class="filter-control" id="flowDateEnd" style="width:140px" onchange="filterFlowRows()">
+      <button class="btn btn-default btn-sm" onclick="clearFlowFilter()">重置</button>
+    </div>
+
+    <!-- 表格区域 -->
+    <div style="flex:1;overflow-y:auto;padding:0">
+      <table class="data-table" style="width:100%">
+        <thead>
+          <tr style="background:#fafafa">
+            <th style="width:40px;min-width:40px;position:sticky;top:0;z-index:3;background:#fafafa">
+              <div class="row-check" id="flowSelectAll" onclick="toggleFlowAll()"></div>
+            </th>
+            <th style="min-width:160px;position:sticky;top:0;z-index:2;background:#fafafa">流水编号</th>
+            <th style="min-width:130px;position:sticky;top:0;z-index:2;background:#fafafa;text-align:right">流水金额</th>
+            <th style="min-width:160px;position:sticky;top:0;z-index:2;background:#fafafa">到账时间</th>
+            <th style="min-width:180px;position:sticky;top:0;z-index:2;background:#fafafa">收款虚拟账户</th>
+          </tr>
+        </thead>
+        <tbody id="flowTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="m-footer">
+      <button class="btn btn-default" onclick="closeFlowModal()">取 消</button>
+      <button class="btn btn-primary" id="flowSubmitBtn" disabled onclick="handleFlowSubmit()">确 认</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ======= 列定义（无补贴列）=======
+function buildCols(dateLabel, withFee, withInvoice, withBillDate) {
+  const base = [
+    { key:'id',               label:'对账单号',         w:160, stickyL:'40px', mono:true },
+    { key:'platform',         label:'反向互联平台商',    w:190 },
+    { key:'date',             label:dateLabel,           w:200 },
+  ];
+  if (withBillDate) base.push({ key:'billDate', label:'出账日期', w:110, muted:true });
+  base.push(
+    { key:'chargeOrders',     label:'充电服务单数',      w:100, right:true },
+    { key:'parkOrders',       label:'占位服务单数',      w:100, right:true },
+    { key:'kwh',              label:'总电量',            w:120, right:true },
+    { key:'total',            label:'总费用',            w:110, right:true },
+    { key:'elec',             label:'电费',              w:110, right:true },
+    { key:'svc',              label:'服务费',            w:110, right:true },
+    { key:'park',             label:'占位费',            w:100, right:true },
+  );
+  if (withFee) base.push({ key:'fee', label:'手续费', w:100, right:true, hl:true });
+  base.push(
+    { key:'adjElec',          label:'调整后电费',        w:110, right:true },
+    { key:'adjSvc',           label:'调整后服务费',      w:115, right:true },
+    { key:'adjPark',          label:'调整后占位费',      w:115, right:true },
+  );
+  if (withFee) base.push({ key:'adjFee', label:'调整后手续费', w:115, right:true, hl:true });
+  base.push(
+    { key:'receivable',       label:'应收总金额',        w:110, right:true, green:true },
+    { key:'adjReason',        label:'调整原因',          w:120 },
+    { key:'status',           label:'状态',              w:80,  badge:'status' },
+    { key:'payStatus',        label:'支付状态',          w:90,  badge:'pay' },
+    { key:'payTime',          label:'认款完成时间',      w:150, muted:true },
+  );
+  if (withInvoice !== false) base.push(
+    { key:'invoiceStatus',    label:'开票状态',          w:80,  badge:'invoice' },
+    { key:'invoiceApplicant', label:'开票申请人',        w:90 },
+    { key:'invoiceApplyTime', label:'开票申请时间',      w:150, muted:true },
+    { key:'invoiceTime',      label:'开票完成时间',      w:150, muted:true },
+  );
+  base.push(
+    { key:'settleApplicant',  label:'结算申请人',        w:90 },
+    { key:'settleApplyTime',  label:'结算申请时间',      w:150, muted:true },
+    { key:'ops',              label:'操作',              w:130, op:true },
+  );
+  return base;
+}
+
+// 补贴单据列定义（仅高德，双状态：开票状态+认款状态）
+const subsidyCols = [
+  { key:'id',               label:'补贴单号',      w:180, stickyL:'40px', mono:true },
+  { key:'startDate',        label:'补贴开始日期',   w:120 },
+  { key:'endDate',          label:'补贴结束日期',   w:120 },
+  { key:'amount',           label:'补贴金额(元)',   w:130, right:true, green:true },
+  { key:'remark',           label:'备注',           w:150, muted:true },
+  { key:'creator',          label:'创建人',         w:80 },
+  { key:'createTime',       label:'创建时间',       w:150, muted:true },
+  { key:'invoiceStatus',    label:'开票状态',       w:90,  badge:'invoice2' },
+  { key:'payStatus',        label:'支付状态',       w:90,  badge:'payment' },
+  { key:'payTime',          label:'认款完成时间',   w:150, muted:true },
+  { key:'invoiceApplicant', label:'开票申请人',     w:90 },
+  { key:'invoiceApplyTime', label:'开票申请时间',   w:150, muted:true },
+  { key:'invoiceTime',      label:'开票完成时间',   w:150, muted:true },
+  { key:'ops',              label:'操作',           w:110, op:true },
+];
+
+// ======= Badge helpers =======
+function payBadge(s)       { const m={已支付:'badge-green',未支付:'badge-gray',部分支付:'badge-orange'}; return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+function invoiceBadge(s)   { const m={已开票:'badge-green',开票中:'badge-blue',未开票:'badge-gray'};    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+function statusBadge(s)    { return `<span class="badge badge-blue">${s}</span>`; }
+function invoice2Badge(s)  { const m={已开票:'badge-green',开票中:'badge-blue',待开票:'badge-gray'};    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+function paymentBadge(s)   { const m={已支付:'badge-green',未支付:'badge-gray'};                         return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+function renderOps(ops, rowId) {
+  return '<div class="ops">'+ops.map((o,i)=>{
+    if (o === '更多') {
+      return `<div class="more-wrap"><span class="op-link" onclick="toggleMoreMenu(this)">更多</span><div class="more-menu"><div class="more-item" onclick="showToast('认款申诉')">认款申诉</div><div class="more-item" onclick="showToast('转账异常处理')">转账异常处理</div><div class="more-item" onclick="openFlowModal('${rowId}')">多笔流水认款</div></div></div>`;
+    }
+    const handler = (o === '编辑' && rowId) ? `openSubsidyEditModal('${rowId}')` : `showToast('${o}')`;
+    return `<span class="op-link" onclick="${handler}">${o}</span>${i<ops.length-1?'<span class="op-sep">|</span>':''}`;
+  }).join('')+'</div>';
+}
+
+function toggleMoreMenu(el) {
+  const menu = el.nextElementSibling;
+  const isOpen = menu.classList.contains('open');
+  // 关闭所有已打开的菜单
+  document.querySelectorAll('.more-menu.open').forEach(m => m.classList.remove('open'));
+  if (!isOpen) {
+    // 计算触发元素的位置
+    const rect = el.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    menu.classList.add('open');
+  }
+}
+
+// 点击其他地方关闭菜单
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.more-wrap')) {
+    document.querySelectorAll('.more-menu.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
+// ======= 渲染表格 =======
+function buildTable(theadId, tbodyId, cols, rows) {
+  const tr = document.getElementById(theadId);
+  tr.innerHTML =
+    `<th style="position:sticky;left:0;z-index:4;background:#fafafa;width:40px;min-width:40px"><div class="row-check" onclick="toggleAll(this,'${tbodyId}')"></div></th>` +
+    cols.map(c => {
+      let s = `min-width:${c.w}px;`;
+      if (c.stickyL) s += `position:sticky;left:${c.stickyL};z-index:3;background:#fafafa;box-shadow:2px 0 5px rgba(0,0,0,.06);`;
+      if (c.op)      s += `position:sticky;right:0;z-index:3;background:#fafafa;`;
+      if (c.hl)      s += `background:#fff7e6;color:#d48806;font-weight:500;`;
+      return `<th style="${s}">${c.label}</th>`;
+    }).join('');
+
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = rows.map(r => {
+    const cells = cols.map(c => {
+      let val = r[c.key];
+      let s = '';
+      if (c.right)   s += 'text-align:right;';
+      if (c.green)   s += 'color:#0B7B6B;font-weight:500;';
+      if (c.muted)   s += 'color:#999;font-size:12px;';
+      if (c.mono)    s += 'font-family:monospace;font-size:12px;';
+      if (c.hl)      s += 'background:#fff7e6;color:#d48806;font-weight:500;';
+      if (c.stickyL) s += `position:sticky;left:${c.stickyL};z-index:1;background:#fff;box-shadow:2px 0 5px rgba(0,0,0,.06);`;
+      if (c.op)      s += 'position:sticky;right:0;z-index:1;background:#fff;';
+      let cell = val;
+      if (c.badge === 'pay')       cell = payBadge(val);
+      if (c.badge === 'invoice')   cell = invoiceBadge(val);
+      if (c.badge === 'invoice2')  cell = invoice2Badge(val);
+      if (c.badge === 'payment')   cell = paymentBadge(val);
+      if (c.badge === 'status')    cell = statusBadge(val);
+      if (c.op)                    cell = renderOps(val, r.id);
+      if (c.right && !c.badge && !c.op && Number(val)) cell = Number(val).toLocaleString();
+      return `<td style="${s}">${cell}</td>`;
+    }).join('');
+    return `<tr><td style="position:sticky;left:0;z-index:1;background:#fff;width:40px"><div class="row-check" onclick="this.classList.toggle('checked')"></div></td>${cells}</tr>`;
+  }).join('');
+}
+
+function toggleAll(el, tbodyId) {
+  el.classList.toggle('checked');
+  const on = el.classList.contains('checked');
+  document.querySelectorAll(`#${tbodyId} .row-check`).forEach(b => on ? b.classList.add('checked') : b.classList.remove('checked'));
+}
+
+// ======= 通用账单数据 =======
+const tradeRows = [
+  { id:'10065420167192766', platform:'【反向互联渠道平台】-极氪',  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:13784, parkOrders:30,  kwh:'602981.97',  total:'704410.78', elec:'348214.91', svc:'355315.87', park:'880.00',  fee:'12340.00', adjElec:'348214.91', adjSvc:'355315.87', adjPark:'880.00',  adjFee:'12340.00', receivable:'704410.78', adjReason:'—', status:'已生成', payStatus:'已支付',   payTime:'2026-06-10 09:12', invoiceStatus:'已开票', invoiceApplicant:'张三', invoiceApplyTime:'2026-06-10 10:00', invoiceTime:'2026-06-11 15:22', settleApplicant:'李四', settleApplyTime:'2026-06-12 09:00', ops:['导出','查看发票','更多'] },
+  { id:'10065420167192762', platform:'招商局大厦',                  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:136,   parkOrders:0,   kwh:'3402.13',    total:'996.92',    elec:'996.92',    svc:'0.00',      park:'0.00',   fee:'0.00',     adjElec:'996.92',    adjSvc:'0.00',     adjPark:'0.00',   adjFee:'0.00',     receivable:'996.92',    adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10065420167192745', platform:'【反向互联渠道平台】-小米',  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:7343,  parkOrders:12,  kwh:'373226.69',  total:'381825.89', elec:'195456.97', svc:'185692.92', park:'676.00', fee:'8820.00',  adjElec:'195456.97', adjSvc:'185692.92',adjPark:'676.00',  adjFee:'8820.00',  receivable:'381825.89', adjReason:'—', status:'已生成', payStatus:'已支付',   payTime:'2026-06-09 14:30', invoiceStatus:'已开票', invoiceApplicant:'王五', invoiceApplyTime:'2026-06-09 16:00', invoiceTime:'2026-06-10 11:00', settleApplicant:'赵六', settleApplyTime:'2026-06-11 10:00', ops:['导出','查看发票','更多'] },
+  { id:'10058390782563593', platform:'重庆数字交通产业集团',       date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:95740, parkOrders:0,   kwh:'2092160.75', total:'1667456.07',elec:'0.00',      svc:'1667456.07',park:'0.00',   fee:'0.00',     adjElec:'0.00',      adjSvc:'1667456.07',adjPark:'0.00',   adjFee:'0.00',     receivable:'1667456.07',adjReason:'—', status:'已生成', payStatus:'部分支付', payTime:'2026-06-08 11:20',invoiceStatus:'开票中', invoiceApplicant:'孙七', invoiceApplyTime:'2026-06-08 12:00', invoiceTime:'—', settleApplicant:'周八', settleApplyTime:'2026-06-10 09:00', ops:['开票','导出','更多'] },
+  { id:'10058390782563592', platform:'【反向互联渠道平台】-小桔', date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:42082, parkOrders:0,   kwh:'1107402.46', total:'786301.18', elec:'479496.36', svc:'306804.82', park:'0.00',   fee:'5600.00',  adjElec:'479496.36', adjSvc:'306804.82',adjPark:'0.00',   adjFee:'5600.00',  receivable:'786301.18', adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563591', platform:'无锡市政公用新能源科技',     date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:43,    parkOrders:0,   kwh:'925.47',     total:'67.83',     elec:'0.00',      svc:'67.83',     park:'0.00',   fee:'0.00',     adjElec:'0.00',      adjSvc:'67.83',    adjPark:'0.00',   adjFee:'0.00',     receivable:'67.83',     adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563589', platform:'【反向互联渠道平台】-星星', date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:577,   parkOrders:4,   kwh:'15507.95',   total:'11990.21',  elec:'7125.48',   svc:'4726.73',   park:'138.00', fee:'320.00',   adjElec:'7125.48',   adjSvc:'4726.73',  adjPark:'138.00', adjFee:'320.00',   receivable:'11990.21',  adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563576', platform:'吉林省平台',                  date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:1213,  parkOrders:0,   kwh:'25771.75',   total:'39289.23',  elec:'18728.47',  svc:'20560.76',  park:'0.00',   fee:'410.00',   adjElec:'18728.47',  adjSvc:'20560.76', adjPark:'0.00',   adjFee:'410.00',   receivable:'39289.23',  adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563567', platform:'上海',                        date:'2026-05-01 ~ 2026-05-31', billDate:'2026-06-01', chargeOrders:172,   parkOrders:2,   kwh:'3304.65',    total:'3550.10',   elec:'1805.77',   svc:'1642.33',   park:'102.00', fee:'88.00',    adjElec:'1805.77',   adjSvc:'1642.33',  adjPark:'102.00', adjFee:'88.00',    receivable:'3550.10',   adjReason:'—', status:'已生成', payStatus:'未支付',   payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+];
+
+// ======= 补贴单据数据 =======
+const subsidyRows = [
+  { id:'SUB20260001', operator:'高德充电', startDate:'2026-05-01', endDate:'2026-05-31', amount:'5000.00', remark:'Q2季度补贴',  creator:'张三',  createTime:'2026-06-05 10:22', invoiceStatus:'已开票', payStatus:'已支付', payTime:'2026-06-08 11:30', invoiceApplicant:'张三',  invoiceApplyTime:'2026-06-06 10:00', invoiceTime:'2026-06-07 14:30', ops:['查看发票','编辑'] },
+  { id:'SUB20260002', operator:'高德充电', startDate:'2026-05-01', endDate:'2026-05-31', amount:'3200.00', remark:'合同约定补贴', creator:'王五',  createTime:'2026-06-06 14:30', invoiceStatus:'开票中',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'王五',  invoiceApplyTime:'2026-06-07 09:00', invoiceTime:'—',              ops:['认款申诉','编辑'] },
+  { id:'SUB20260003', operator:'高德充电', startDate:'2026-06-01', endDate:'2026-06-15', amount:'1500.00', remark:'—',           creator:'李四',  createTime:'2026-06-16 09:05', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票','认款申诉','编辑'] },
+  { id:'SUB20260004', operator:'高德充电', startDate:'2026-06-01', endDate:'2026-06-30', amount:'2800.00', remark:'运营激励补贴', creator:'范文杰',createTime:'2026-06-20 15:18', invoiceStatus:'待开票',  payStatus:'未支付',  payTime:'—', invoiceApplicant:'—',    invoiceApplyTime:'—',                invoiceTime:'—',              ops:['开票','认款申诉','编辑'] },
+  { id:'SUB20260005', operator:'高德充电', startDate:'2026-04-01', endDate:'2026-04-30', amount:'800.00',  remark:'—',           creator:'孙七',  createTime:'2026-05-08 11:00', invoiceStatus:'已开票',  payStatus:'已支付', payTime:'2026-05-12 10:00', invoiceApplicant:'孙七',  invoiceApplyTime:'2026-05-09 10:00', invoiceTime:'2026-05-10 16:00', ops:['查看发票','编辑'] },
+];
+
+// ======= Tab 切换 =======
+function switchMode(mode) {
+  ['trade','subsidy'].forEach(m => {
+    document.getElementById('tab-'+m).classList.toggle('active', m===mode);
+    document.getElementById('filter-'+m).style.display = m===mode ? '' : 'none';
+    document.getElementById('table-'+m).style.display  = m===mode ? '' : 'none';
+  });
+}
+
+// ======= 反向运营商搜索下拉 =======
+const operatorOptions = ['高德充电','极氪充电','小米充电','小桔充电','星星充电'];
+let ssOpen = false, ssIdx = -1;
+
+function openSS() {
+  renderSS('');
+  document.getElementById('ssDropdown').classList.add('open');
+  ssOpen = true;
+}
+function closeSS() {
+  setTimeout(() => {
+    document.getElementById('ssDropdown').classList.remove('open');
+    ssOpen = false;
+  }, 150);
+}
+function filterOperators() {
+  const v = document.getElementById('operatorInput').value;
+  renderSS(v);
+}
+function renderSS(q) {
+  const dd = document.getElementById('ssDropdown');
+  const list = operatorOptions.filter(o => !q || o.includes(q));
+  if (!list.length) { dd.innerHTML = '<div class="ss-empty">无匹配项</div>'; return; }
+  dd.innerHTML = list.map((o,i) => `<div class="ss-option${i===ssIdx?' highlighted':''}" onmousedown="selectOperator('${o}')">${o}</div>`).join('');
+}
+function selectOperator(v) {
+  document.getElementById('operatorInput').value = v;
+  document.getElementById('ssDropdown').classList.remove('open');
+}
+
+// ======= 补贴单据弹窗 =======
+function openSubsidyModal() {
+  document.getElementById('subsidyModalTitle').textContent = '新建补贴单据';
+  document.getElementById('subsidySubmitBtn').textContent = '确 定';
+  document.getElementById('operatorInput').value = '';
+  document.getElementById('periodStart').value = '';
+  document.getElementById('periodEnd').value = '';
+  document.getElementById('subsidyAmount').value = '';
+  document.getElementById('subsidyRemark').value = '';
+  document.getElementById('fileList').innerHTML = '';
+  document.getElementById('subsidy-modal-overlay').classList.add('show');
+}
+function openSubsidyEditModal(rowId) {
+  const row = subsidyRows.find(r => r.id === rowId);
+  if (!row) return;
+  document.getElementById('subsidyModalTitle').textContent = '编辑补贴单据';
+  document.getElementById('subsidySubmitBtn').textContent = '保 存';
+  document.getElementById('operatorInput').value = row.operator || '';
+  document.getElementById('periodStart').value = row.startDate || '';
+  document.getElementById('periodEnd').value = row.endDate || '';
+  document.getElementById('subsidyAmount').value = row.amount || '';
+  document.getElementById('subsidyRemark').value = row.remark === '—' ? '' : (row.remark || '');
+  document.getElementById('fileList').innerHTML = '';
+  document.getElementById('subsidy-modal-overlay').classList.add('show');
+}
+function closeSubsidyModal() {
+  document.getElementById('subsidy-modal-overlay').classList.remove('show');
+}
+function overlayClick(e) {
+  if (e.target === e.currentTarget) closeSubsidyModal();
+}
+function handleSubsidySubmit() {
+  const title = document.getElementById('subsidyModalTitle').textContent;
+  closeSubsidyModal();
+  showToast(title === '新建补贴单据' ? '补贴单据已创建' : '补贴单据已保存');
+}
+
+// ======= 文件上传 =======
+let uploadedFiles = [];
+function handleFileChange(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => {
+    uploadedFiles.push(f);
+    const ext = f.name.split('.').pop().toLowerCase();
+    const isImg = ['png','jpg','jpeg','gif'].includes(ext);
+    const sizeKB = (f.size / 1024).toFixed(1);
+    const el = document.createElement('div');
+    el.className = 'file-item';
+    el.innerHTML = isImg
+      ? `<img class="file-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect fill='%23f5f5f5' width='32' height='32' rx='3'/%3E%3Ctext x='16' y='18' text-anchor='middle' font-size='8' fill='%23bbb'%3E${ext.toUpperCase()}%3C/text%3E%3C/svg%3E" alt="">`
+      : `<div class="file-icon" style="background:#e6f7ff;color:#1890ff">${ext.toUpperCase()}</div>`;
+    el.innerHTML += `<div class="file-info"><div class="file-name">${f.name}</div><div class="file-size">${sizeKB} KB</div></div><button class="file-del" onclick="this.parentElement.remove()">×</button>`;
+    document.getElementById('fileList').appendChild(el);
+  });
+  e.target.value = '';
+}
+
+// ======= Toast =======
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ======= 多笔流水认款 =======
+// 模拟流水数据
+const flowData = [
+  { id:'FL20260601001', amount:150000.00, time:'2026-06-01 10:23:45', account:'招商银行-尾号8866' },
+  { id:'FL20260601002', amount:200000.00, time:'2026-06-02 09:15:32', account:'工商银行-尾号5521' },
+  { id:'FL20260602001', amount:180000.00, time:'2026-06-03 14:08:11', account:'招商银行-尾号8866' },
+  { id:'FL20260603001', amount:120000.00, time:'2026-06-05 16:42:28', account:'建设银行-尾号3377' },
+  { id:'FL20260604001', amount:54410.78,  time:'2026-06-08 11:30:05', account:'工商银行-尾号5521' },
+  { id:'FL20260605001', amount:80000.00,  time:'2026-06-10 09:55:17', account:'招商银行-尾号8866' },
+  { id:'FL20260606001', amount:65000.00,  time:'2026-06-12 15:20:43', account:'农业银行-尾号9912' },
+];
+
+let currentFlowReceivable = 0;
+let filteredFlowData = [...flowData];
+
+function openFlowModal(rowId) {
+  // 关闭更多菜单
+  document.querySelectorAll('.more-menu.open').forEach(m => m.classList.remove('open'));
+  
+  // 获取该行的应收金额
+  const row = tradeRows.find(r => r.id === rowId);
+  if (!row) return;
+  
+  currentFlowReceivable = parseFloat(row.receivable) || 0;
+  document.getElementById('flowReceivable').textContent = '¥' + currentFlowReceivable.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  
+  // 重置筛选
+  document.getElementById('flowDateStart').value = '';
+  document.getElementById('flowDateEnd').value = '';
+  filteredFlowData = [...flowData];
+  
+  // 重置勾选状态
+  document.getElementById('flowSelectAll').classList.remove('checked');
+  document.getElementById('flowCheckedAmount').textContent = '¥0.00';
+  document.getElementById('flowMatchHint').style.display = 'none';
+  
+  // 渲染表格
+  renderFlowTable();
+  
+  // 更新确认按钮状态
+  updateFlowSubmitBtn();
+  
+  // 显示弹窗
+  document.getElementById('flow-modal-overlay').classList.add('show');
+}
+
+function closeFlowModal() {
+  document.getElementById('flow-modal-overlay').classList.remove('show');
+}
+
+function flowOverlayClick(e) {
+  if (e.target === e.currentTarget) closeFlowModal();
+}
+
+function renderFlowTable() {
+  const tbody = document.getElementById('flowTableBody');
+  tbody.innerHTML = filteredFlowData.map(r => {
+    const amountStr = r.amount.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+    return `<tr>
+      <td style="position:sticky;left:0;z-index:1;background:#fff;width:40px">
+        <div class="row-check flow-check" data-id="${r.id}" data-amount="${r.amount}" onclick="toggleFlowCheck(this)"></div>
+      </td>
+      <td style="font-family:monospace;font-size:12px">${r.id}</td>
+      <td style="text-align:right;color:#333;font-weight:500">¥${amountStr}</td>
+      <td style="color:#666">${r.time}</td>
+      <td style="color:#666">${r.account}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleFlowCheck(el) {
+  el.classList.toggle('checked');
+  updateFlowAmount();
+}
+
+function toggleFlowAll() {
+  const selectAll = document.getElementById('flowSelectAll');
+  selectAll.classList.toggle('checked');
+  const isChecked = selectAll.classList.contains('checked');
+  
+  document.querySelectorAll('.flow-check').forEach(cb => {
+    if (isChecked) {
+      cb.classList.add('checked');
+    } else {
+      cb.classList.remove('checked');
+    }
+  });
+  
+  updateFlowAmount();
+}
+
+function updateFlowAmount() {
+  let total = 0;
+  document.querySelectorAll('.flow-check.checked').forEach(cb => {
+    total += parseFloat(cb.dataset.amount) || 0;
+  });
+  
+  const amountStr = total.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('flowCheckedAmount').textContent = '¥' + amountStr;
+  
+  // 更新匹配提示
+  const isMatch = Math.abs(total - currentFlowReceivable) < 0.01;
+  document.getElementById('flowMatchHint').style.display = isMatch ? '' : 'none';
+  
+  // 更新全选状态
+  const allChecks = document.querySelectorAll('.flow-check');
+  const checkedChecks = document.querySelectorAll('.flow-check.checked');
+  document.getElementById('flowSelectAll').classList.toggle('checked', allChecks.length > 0 && allChecks.length === checkedChecks.length);
+  
+  // 更新确认按钮状态
+  updateFlowSubmitBtn();
+}
+
+function updateFlowSubmitBtn() {
+  let total = 0;
+  document.querySelectorAll('.flow-check.checked').forEach(cb => {
+    total += parseFloat(cb.dataset.amount) || 0;
+  });
+  
+  const isMatch = Math.abs(total - currentFlowReceivable) < 0.01;
+  document.getElementById('flowSubmitBtn').disabled = !isMatch;
+}
+
+function filterFlowRows() {
+  const startDate = document.getElementById('flowDateStart').value;
+  const endDate = document.getElementById('flowDateEnd').value;
+  
+  filteredFlowData = flowData.filter(r => {
+    const flowDate = r.time.split(' ')[0]; // 取日期部分
+    if (startDate && flowDate < startDate) return false;
+    if (endDate && flowDate > endDate) return false;
+    return true;
+  });
+  
+  // 重置勾选状态
+  document.getElementById('flowSelectAll').classList.remove('checked');
+  renderFlowTable();
+  updateFlowAmount();
+}
+
+function clearFlowFilter() {
+  document.getElementById('flowDateStart').value = '';
+  document.getElementById('flowDateEnd').value = '';
+  filteredFlowData = [...flowData];
+  
+  // 重置勾选状态
+  document.getElementById('flowSelectAll').classList.remove('checked');
+  renderFlowTable();
+  updateFlowAmount();
+}
+
+function handleFlowSubmit() {
+  let total = 0;
+  const checkedIds = [];
+  document.querySelectorAll('.flow-check.checked').forEach(cb => {
+    total += parseFloat(cb.dataset.amount) || 0;
+    checkedIds.push(cb.dataset.id);
+  });
+  
+  closeFlowModal();
+  showToast(`已选择 ${checkedIds.length} 笔流水，共计 ¥${total.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2})}`);
+}
+
+// ======= 初始化 =======
+const tradeCols = buildCols('账期', false, true, true);
+buildTable('thead-trade', 'tbody-trade', tradeCols, tradeRows);
+buildTable('thead-subsidy', 'tbody-subsidy', subsidyCols, subsidyRows);
+</script>
+</body>
+</html>
